@@ -9,10 +9,10 @@ const normalize = (s: string) => collapseSpaces(stripControls(s.trim()));
 /* ------------------------------- Email ----------------------------------- */
 export const emailSchema = z
   .string()
-  .transform((v) => normalize(v).toLowerCase())
   .min(6, "ایمیل بسیار کوتاه است")
   .max(254, "ایمیل بسیار بلند است")
-  .email("ایمیل معتبر نیست");
+  .email("ایمیل معتبر نیست")
+  .transform((v) => normalize(v).toLowerCase());
 
 /* ------------------------------ Password --------------------------------- */
 // لیست کوتاهِ رمزهای بسیار رایج. (برای نسخهٔ کامل می‌توان از سرویس HIBP در سرور استفاده کرد)
@@ -30,7 +30,6 @@ const looksSequential = (pw: string) => {
 
 export const passwordSchema = z
   .string()
-  .transform((v) => normalize(v))
   .min(8, "حداقل ۸ کاراکتر")
   .max(128, "حداکثر ۱۲۸ کاراکتر")
   .regex(/[A-Z]/, "حداقل یک حرف بزرگ")
@@ -45,17 +44,18 @@ export const passwordSchema = z
     if (looksSequential(plain)) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "از الگوهای متوالی یا ساده استفاده نکنید" });
     }
-  });
+  })
+  .transform((v) => normalize(v));
 
 /* -------------------------------- Name ----------------------------------- */
 // اجازهٔ حروف فارسی/عربی و لاتین + فاصله و «-»
 const NAME_RE = /^[\p{L}\p{M}\s\-]+$/u;
 export const fullNameSchema = z
   .string()
-  .transform((v) => normalize(v))
   .min(2, "نام خیلی کوتاه است")
   .max(80, "نام خیلی بلند است")
-  .refine((v) => NAME_RE.test(v), "فقط حروف، فاصله و «-» مجاز است");
+  .refine((v) => NAME_RE.test(v), "فقط حروف، فاصله و «-» مجاز است")
+  .transform((v) => normalize(v));
 
 /* ------------------------------ Signup ----------------------------------- */
 export const signupSchema = z.object({

@@ -5,9 +5,10 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupInput } from "@/lib/validation/auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-// اگر می‌خواهی از دکمه‌ی آماده خودت استفاده کنی این را باز کن:
-// import { Primary } from "@/components/ui/Button";
+// اگر shadcn/ui:
+// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+// اگر Card سفارشی خودته، همون ایمپورت فعلی:
+import Card from "@/components/ui/Card";
 import { useRouter } from "next/navigation";
 
 function strengthScore(pw: string) {
@@ -17,7 +18,7 @@ function strengthScore(pw: string) {
   if (/[a-z]/.test(pw)) score++;
   if (/[0-9]/.test(pw)) score++;
   if (/[^A-Za-z0-9]/.test(pw)) score++;
-  return score; // 0..5
+  return score;
 }
 
 export default function SignupSection() {
@@ -37,7 +38,6 @@ export default function SignupSection() {
     setServerError(null);
     setLoading(true);
     try {
-      // مسیر درست API در پروژه‌ی تو:
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -56,18 +56,21 @@ export default function SignupSection() {
   return (
     <div dir="rtl" className="min-h-[80vh] grid place-items-center px-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-extrabold">
-            ساخت حساب NEXUSA
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="p-6 border-b border-white/10">
+          <h2 className="text-2xl font-extrabold">ساخت حساب NEXUSA</h2>
+        </div>
+
+        {/* فقط یک wrapper با p-6 */}
+        <div className="p-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="space-y-2">
-              <label className="text-sm">نام و نام خانوادگی</label>
+              <label className="text-sm" htmlFor="fullName">نام و نام خانوادگی</label>
               <input
+                id="fullName"
                 type="text"
+                autoComplete="name"
                 className="w-full rounded-md border border-white/10 bg-transparent px-3 py-2 outline-none"
+                aria-invalid={!!form.formState.errors.fullName || undefined}
                 {...form.register("fullName")}
               />
               {form.formState.errors.fullName && (
@@ -78,10 +81,13 @@ export default function SignupSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm">ایمیل</label>
+              <label className="text-sm" htmlFor="email">ایمیل</label>
               <input
+                id="email"
                 type="email"
+                autoComplete="email"
                 className="w-full rounded-md border border-white/10 bg-transparent px-3 py-2 outline-none"
+                aria-invalid={!!form.formState.errors.email || undefined}
                 {...form.register("email")}
               />
               {form.formState.errors.email && (
@@ -92,10 +98,13 @@ export default function SignupSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm">رمز عبور</label>
+              <label className="text-sm" htmlFor="password">رمز عبور</label>
               <input
+                id="password"
                 type="password"
+                autoComplete="new-password"
                 className="w-full rounded-md border border-white/10 bg-transparent px-3 py-2 outline-none"
+                aria-invalid={!!form.formState.errors.password || undefined}
                 {...form.register("password")}
               />
               <div className="h-1 w-full bg-white/10 rounded">
@@ -111,8 +120,8 @@ export default function SignupSection() {
               )}
             </div>
 
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" {...form.register("agree")} />
+            <label className="flex items-center gap-2 text-sm" htmlFor="agree">
+              <input id="agree" type="checkbox" {...form.register("agree")} />
               <span>شرایط استفاده را می‌پذیرم</span>
             </label>
             {form.formState.errors.agree && (
@@ -132,13 +141,8 @@ export default function SignupSection() {
             >
               {loading ? "در حال ارسال…" : "ساخت حساب"}
             </button>
-            {/* در صورت تمایل از دکمه‌ی خودت استفاده کن:
-            <Primary type="submit" disabled={loading || !form.formState.isValid}>
-              {loading ? "در حال ارسال…" : "ساخت حساب"}
-            </Primary>
-            */}
           </form>
-        </CardContent>
+        </div>
       </Card>
     </div>
   );
