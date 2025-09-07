@@ -8,7 +8,7 @@ import { signupSchema, type SignupInput } from "@/lib/validation/auth";
 // اگر shadcn/ui:
 // import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 // اگر Card سفارشی خودته، همون ایمپورت فعلی:
-import Card from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { useRouter } from "next/navigation";
 
 function strengthScore(pw: string) {
