@@ -1,8 +1,18 @@
-node_modules
-.next
-out
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+
+# env files
 .env
 .env.*
+
+# windows binaries
+*.exe
+
+# debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
