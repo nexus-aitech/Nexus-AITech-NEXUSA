@@ -1,3 +1,0 @@
-nexus-aitech.net, www.nexus-aitech.net {
-  reverse_proxy 127.0.0.1:3000
-}
