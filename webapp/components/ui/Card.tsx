@@ -1,3 +1,5 @@
+import React from "react";
+
 export function Card({
   title,
   children,
@@ -15,3 +17,5 @@ export function Card({
     </div>
   );
 }
+
+export default Card;

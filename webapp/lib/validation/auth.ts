@@ -28,24 +28,29 @@ const looksSequential = (pw: string) => {
   return sequences.some(seq => seq.includes(s) || seq.split("").reverse().join("").includes(s));
 };
 
-export const passwordSchema = z
-  .string()
-  .min(8, "حداقل ۸ کاراکتر")
-  .max(128, "حداکثر ۱۲۸ کاراکتر")
-  .regex(/[A-Z]/, "حداقل یک حرف بزرگ")
-  .regex(/[a-z]/, "حداقل یک حرف کوچک")
-  .regex(/[0-9]/, "حداقل یک رقم")
-  .regex(/[^A-Za-z0-9]/, "حداقل یک کاراکتر ویژه")
-  .superRefine((pw, ctx) => {
-    const plain = pw.toLowerCase();
-    if (commonBad.has(plain)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "رمز عبور بسیار رایج است" });
-    }
-    if (looksSequential(plain)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "از الگوهای متوالی یا ساده استفاده نکنید" });
-    }
-  })
-  .transform((v) => normalize(v));
+export const signupSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(3, "حداقل ۳ کاراکتر"),
+
+  email: z.string()
+    .trim()
+    .toLowerCase()
+    .email("ایمیل نامعتبر"),
+
+  password: z.string()
+    .min(8, "حداقل ۸ کاراکتر")
+    .regex(/[A-Z]/, "حداقل یک حرف بزرگ")
+    .regex(/[a-z]/, "حداقل یک حرف کوچک")
+    .regex(/[0-9]/, "حداقل یک عدد")
+    .regex(/[^A-Za-z0-9]/, "حداقل یک کاراکتر خاص"),
+
+  agree: z.literal(true, {
+    errorMap: () => ({ message: "باید شرایط استفاده را بپذیرید" }),
+  }),
+});
+
+export type SignupInput = z.infer<typeof signupSchema>;
 
 /* -------------------------------- Name ----------------------------------- */
 // اجازهٔ حروف فارسی/عربی و لاتین + فاصله و «-»
