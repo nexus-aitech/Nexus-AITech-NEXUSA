@@ -11,20 +11,26 @@ export const metadata: Metadata = {
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' }
     ],
-    apple: '/apple-touch-icon.png'  // ← همین فایلی که ساختیم
+    apple: '/apple-touch-icon.png',
   },
-  manifest: '/site.webmanifest'
+  manifest: '/site.webmanifest',
 }
 
-// 👇 themeColor را اینجا منتقل کن
+// 👇 viewport کامل و استاندارد موبایل/تبلت/دسکتاپ
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,     // اجازه‌ی زوم برای A11y
+  viewportFit: 'cover',// رعایت safe-area روی iOS
   themeColor: '#0B0F13',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fa" dir="rtl">
-      <body>{children}</body>
+      <body className="min-h-screen antialiased">
+        {children}
+      </body>
     </html>
   )
 }
