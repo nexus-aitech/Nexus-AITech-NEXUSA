@@ -1,0 +1,65 @@
+env: ${NEXUSA_ENV:dev}  # resolved by pydantic-settings (default: dev)
+debug: false  # set explicitly as boolean
+
+pipeline:
+  steps: [ingestion, features, signals, backtest]
+  mode: live
+  input: null
+
+ingestion:
+  mode: live
+  methods: [websocket]
+  exchanges: [binance]  # replaced placeholder with actual list
+
+  retry_policy:
+    retries: 3
+    backoff_factor: 2.0
+    initial_delay_ms: 500
+    max_delay_ms: 10000
+
+  # نمادها به صورت کانُنیکال بدون اسلش (لیست نمونه؛ می‌تونی کم/زیاد کنی)
+  symbols:
+    - PAXGUSDT
+    - BTCUSDT
+    - ETHUSDT
+    - XRPUSDT
+    - BNBUSDT
+    - SOLUSDT
+    - NEARUSDT
+    - APTUSDT
+    - ICPUSDT
+    - AAVEUSDT
+    - RNDERUSDT
+    - TAOUSDT
+    - VETUSDT
+    - FETUSDT
+    - ALGOUSDT
+    - ARBUSDT
+    - FILUSDT
+    - ENAUSDT
+    - ATOMUSDT
+    - OPUSDT
+    - WIFUSDT
+    - FLOKIUSDT
+    - TIAUSDT
+    - GRTUSDT
+    - TONUSDT
+
+  subscribe_batch_size: 20
+  max_queue: 10000
+
+  # حساب‌ها/کلیدها (اختیاری؛ بعضی فیدهای عمومی بدون کلید هم کار می‌کنند)
+  accounts:
+    __EXCHANGE_NAME__:
+      enabled: true
+      apiKey: ${__EXCHANGE_API_KEY__}
+      secret: ${__EXCHANGE_SECRET_KEY__}
+
+storage:
+  # داخل کانتینر از مسیر داخلی استفاده کن (با volume به /app/lake ماونت شده است)
+  lake_root: "file:///app/lake"
+  tsdb_url: "clickhouse://clickhouse:9000"     # قبلاً localhost → اشتباه در Docker
+  s3_bucket: "nexusa-feature-archive"
+  redis:
+    host: redis
+    port: 6379

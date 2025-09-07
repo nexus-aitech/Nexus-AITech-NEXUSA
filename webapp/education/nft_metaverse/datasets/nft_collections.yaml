@@ -1,0 +1,88 @@
+schema:
+  id: string (slug, unique identifier for the collection)
+  name: string (official collection name)
+  chain: string (Ethereum, Solana, Polygon, etc.)
+  contract: string (on-chain contract address)
+  standard: string (ERC-721, ERC-1155, etc.)
+  marketplaces:
+  - list of strings (OpenSea, Blur, Magic Eden, etc.)
+  category: string (art, pfp, gaming, metaverse, utility, etc.)
+  creator: string (individual/team/company)
+  launch_date: string (YYYY-MM format)
+  supply: integer (total number of NFTs in collection)
+  royalty: float (percentage of royalties)
+  floor_price: float (current floor price, in native chain token)
+  links:
+    website: url
+    twitter: url
+    discord: url
+    opensea: url
+    etherscan: url
+  notes: string (free text, remarks, risk factors, highlights)
+collections:
+- id: bayc
+  name: Bored Ape Yacht Club
+  chain: Ethereum
+  contract: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d'
+  standard: ERC-721
+  marketplaces:
+  - OpenSea
+  - Blur
+  - LooksRare
+  - X2Y2
+  category: pfp
+  creator: Yuga Labs
+  launch_date: 2021-04
+  supply: 10000
+  royalty: 2.5
+  floor_price: 24.5
+  links:
+    website: https://boredapeyachtclub.com
+    twitter: https://twitter.com/BoredApeYC
+    discord: https://discord.gg/bayc
+    opensea: https://opensea.io/collection/boredapeyachtclub
+    etherscan: https://etherscan.io/address/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d
+  notes: یکی از معروف‌ترین کلکسیون‌های NFT؛ نمونه مرجع تحلیل قیمت کف و رفتار بازار.
+- id: decentraland
+  name: Decentraland LAND
+  chain: Ethereum
+  contract: '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d'
+  standard: ERC-721
+  marketplaces:
+  - OpenSea
+  - Rarible
+  category: metaverse
+  creator: Decentraland Foundation
+  launch_date: 2017-12
+  supply: 90601
+  royalty: 2.5
+  floor_price: 0.8
+  links:
+    website: https://decentraland.org
+    twitter: https://twitter.com/decentraland
+    discord: https://discord.gg/decentraland
+    opensea: https://opensea.io/collection/decentraland
+    etherscan: https://etherscan.io/address/0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d
+  notes: زمین‌های متاورسی؛ از اولین پروژه‌های متاورس بلاکچینی.
+- id: sandbox
+  name: The Sandbox LAND
+  chain: Ethereum
+  contract: '0x431acfb1f4f64e87f95f6b73f30f1a5daeb1b907'
+  standard: ERC-721
+  marketplaces:
+  - OpenSea
+  - Rarible
+  - LooksRare
+  category: metaverse
+  creator: The Sandbox
+  launch_date: 2020-12
+  supply: 166464
+  royalty: 5.0
+  floor_price: 0.6
+  links:
+    website: https://sandbox.game
+    twitter: https://twitter.com/thesandboxgame
+    discord: https://discord.gg/sandbox
+    opensea: https://opensea.io/collection/sandbox
+    etherscan: https://etherscan.io/address/0x431acfb1f4f64e87f95f6b73f30f1a5daeb1b907
+  notes: یکی از پروژه‌های شاخص متاورس با همکاری برندهای بزرگ.

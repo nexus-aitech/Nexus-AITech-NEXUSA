@@ -1,0 +1,168 @@
+version: v2.0-global
+generated_at: '2025-09-05T22:09:54.847628Z'
+indicators:
+- indicator_id: fed-funds-rate
+  name: Fed Funds Rate
+  category: <Rates/Inflation/Liquidity/Dollar>
+  description: null
+  source: 'FRED: FEDFUNDS'
+  provider: <FRED/BLS/IMF/WorldBank/ECB/etc.>
+  frequency: monthly
+  unit: '%'
+  transformations:
+    yoy: null
+    mom: null
+    real_adjusted: null
+    zscore: null
+  coverage:
+    geography: <US/Global/EU/etc.>
+    start_date: null
+    last_updated: null
+  usage:
+    linked_modules: []
+    signal_roles:
+    - feature
+    - trigger
+    - validation
+  quality:
+    data_quality: <high/medium/low>
+    timeliness: <lag in days>
+    revisions: <yes/no>
+  raw_original:
+    indicator: Fed Funds Rate
+    source: 'FRED: FEDFUNDS'
+    frequency: monthly
+    unit: '%'
+    notes: نرخ بهره سیاستی ایالات متحده.
+- indicator_id: cpi-yoy
+  name: CPI (YoY)
+  category: <Rates/Inflation/Liquidity/Dollar>
+  description: null
+  source: 'FRED: CPIAUCSL'
+  provider: <FRED/BLS/IMF/WorldBank/ECB/etc.>
+  frequency: monthly
+  unit: '%'
+  transformations:
+    yoy: null
+    mom: null
+    real_adjusted: null
+    zscore: null
+  coverage:
+    geography: <US/Global/EU/etc.>
+    start_date: null
+    last_updated: null
+  usage:
+    linked_modules: []
+    signal_roles:
+    - feature
+    - trigger
+    - validation
+  quality:
+    data_quality: <high/medium/low>
+    timeliness: <lag in days>
+    revisions: <yes/no>
+  raw_original:
+    indicator: CPI (YoY)
+    source: 'FRED: CPIAUCSL'
+    frequency: monthly
+    unit: '%'
+    notes: شاخص قیمت مصرف‌کننده؛ YoY برای تورم سالانه.
+- indicator_id: core-pce
+  name: Core PCE
+  category: <Rates/Inflation/Liquidity/Dollar>
+  description: null
+  source: 'FRED: PCEPILFE'
+  provider: <FRED/BLS/IMF/WorldBank/ECB/etc.>
+  frequency: monthly
+  unit: '%'
+  transformations:
+    yoy: null
+    mom: null
+    real_adjusted: null
+    zscore: null
+  coverage:
+    geography: <US/Global/EU/etc.>
+    start_date: null
+    last_updated: null
+  usage:
+    linked_modules: []
+    signal_roles:
+    - feature
+    - trigger
+    - validation
+  quality:
+    data_quality: <high/medium/low>
+    timeliness: <lag in days>
+    revisions: <yes/no>
+  raw_original:
+    indicator: Core PCE
+    source: 'FRED: PCEPILFE'
+    frequency: monthly
+    unit: '%'
+    notes: تورم مصرف شخصی، بدون انرژی/غذا.
+- indicator_id: m2
+  name: M2
+  category: <Rates/Inflation/Liquidity/Dollar>
+  description: null
+  source: 'FRED: M2SL'
+  provider: <FRED/BLS/IMF/WorldBank/ECB/etc.>
+  frequency: monthly
+  unit: USD
+  transformations:
+    yoy: null
+    mom: null
+    real_adjusted: null
+    zscore: null
+  coverage:
+    geography: <US/Global/EU/etc.>
+    start_date: null
+    last_updated: null
+  usage:
+    linked_modules: []
+    signal_roles:
+    - feature
+    - trigger
+    - validation
+  quality:
+    data_quality: <high/medium/low>
+    timeliness: <lag in days>
+    revisions: <yes/no>
+  raw_original:
+    indicator: M2
+    source: 'FRED: M2SL'
+    frequency: monthly
+    unit: USD
+    notes: حجم پول گسترده.
+- indicator_id: dxy
+  name: DXY
+  category: <Rates/Inflation/Liquidity/Dollar>
+  description: null
+  source: 'FRED: DTWEXBGS'
+  provider: <FRED/BLS/IMF/WorldBank/ECB/etc.>
+  frequency: daily
+  unit: Index
+  transformations:
+    yoy: null
+    mom: null
+    real_adjusted: null
+    zscore: null
+  coverage:
+    geography: <US/Global/EU/etc.>
+    start_date: null
+    last_updated: null
+  usage:
+    linked_modules: []
+    signal_roles:
+    - feature
+    - trigger
+    - validation
+  quality:
+    data_quality: <high/medium/low>
+    timeliness: <lag in days>
+    revisions: <yes/no>
+  raw_original:
+    indicator: DXY
+    source: 'FRED: DTWEXBGS'
+    frequency: daily
+    unit: Index
+    notes: شاخص دلار آمریکا.

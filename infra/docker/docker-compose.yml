@@ -1,0 +1,114 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: nexusa
+      POSTGRES_PASSWORD: nexusa
+      POSTGRES_DB: nexusa
+    ports:
+    - 5432:5432
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -qO- http://localhost:8000/healthz || curl -fsS http://localhost:8000/healthz
+        || exit 1
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+  content:
+    build:
+      context: ../../services/content
+      dockerfile: ../../infra/docker/content.Dockerfile
+    environment:
+      POSTGRES_DSN: postgresql+asyncpg://nexusa:nexusa@postgres:5432/nexusa
+    ports:
+    - 8001:8000
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -qO- http://localhost:8000/healthz || curl -fsS http://localhost:8000/healthz
+        || exit 1
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+  assessment:
+    build:
+      context: ../../services/assessment
+      dockerfile: ../../infra/docker/assessment.Dockerfile
+    ports:
+    - 8002:8000
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -qO- http://localhost:8000/healthz || curl -fsS http://localhost:8000/healthz
+        || exit 1
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+  tutor:
+    build:
+      context: ../../services/tutor
+    ports:
+    - 8003:8000
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -qO- http://localhost:8000/healthz || curl -fsS http://localhost:8000/healthz
+        || exit 1
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+  lab:
+    build:
+      context: ../../services/lab
+    ports:
+    - 8004:8000
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -qO- http://localhost:8000/healthz || curl -fsS http://localhost:8000/healthz
+        || exit 1
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+  recommender:
+    build:
+      context: ../../services/recommender
+    ports:
+    - 8005:8000
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -qO- http://localhost:8000/healthz || curl -fsS http://localhost:8000/healthz
+        || exit 1
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+  community:
+    build:
+      context: ../../services/community
+    ports:
+    - 8006:8000
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -qO- http://localhost:8000/healthz || curl -fsS http://localhost:8000/healthz
+        || exit 1
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s

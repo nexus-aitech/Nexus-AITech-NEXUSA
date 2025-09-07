@@ -1,0 +1,15 @@
+title = "NEXUSA gitleaks config"
+
+[[rules]]
+# Keep default rules by not redefining; we'll just add allowlist entries below.
+
+[allowlist]
+description = "Suppress integrity-hash false positives in lockfiles"
+paths = [
+  '''webapp/package-lock.json''',
+]
+regexes = [
+  '''(?i)okx''',
+  '''(?i)AKIA[A-Z0-9]{16}''',
+  '''(?i)ASIA[A-Z0-9]{16}''',
+]

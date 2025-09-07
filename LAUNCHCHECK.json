@@ -1,0 +1,95 @@
+{
+  "expected_paths": [
+    "backtesting",
+    "core",
+    "features",
+    "ingestion",
+    "orchestration",
+    "packages",
+    "reports",
+    "signals",
+    "storage",
+    "ui",
+    "services",
+    "tests",
+    "README.md",
+    "requirements.txt",
+    "pyproject.toml",
+    "main.py",
+    "Dockerfile",
+    "docker-compose.yaml",
+    ".env.example",
+    "config.yaml"
+  ],
+  "required_env": [
+    "ENV",
+    "SECRET_KEY",
+    "DATABASE_URL",
+    "FRONTEND_ORIGINS",
+    "REDIS_URL",
+    "KAFKA_BOOTSTRAP",
+    "CLICKHOUSE_HOST",
+    "S3_ENDPOINT",
+    "S3_BUCKET",
+    "S3_ACCESS_KEY",
+    "S3_SECRET_KEY"
+  ],
+  "env_rules": {
+    "ENV": {
+      "allowed": [
+        "prod",
+        "staging",
+        "production"
+      ]
+    },
+    "DEBUG": {
+      "allowed": [
+        "0",
+        "false",
+        "False"
+      ],
+      "disallow_if_missing": true
+    },
+    "FRONTEND_ORIGINS": {
+      "required": true
+    },
+    "S3_ACCESS_KEY": {
+      "forbidden_values": [
+        "minioadmin",
+        ""
+      ]
+    },
+    "S3_SECRET_KEY": {
+      "forbidden_values": [
+        "minioadmin",
+        ""
+      ]
+    }
+  },
+  "forbidden_values": [
+    "changeme",
+    "your_key_here",
+    "password"
+  ],
+  "startup_cmd": "python main.py",
+  "startup_env": {
+    "ENV": "prod",
+    "DEBUG": "0",
+    "FRONTEND_ORIGINS": "http://localhost:3000,http://127.0.0.1:3000"
+  },
+  "healthcheck": {
+    "url": "http://127.0.0.1:8000/health",
+    "timeout_s": 15,
+    "expected_status": 200
+  },
+  "static_tools": {
+    "flake8": true,
+    "pylint": false,
+    "bandit": true
+  },
+  "docker": {
+    "enabled": false,
+    "image_tag": "nexusa:release"
+  },
+  "startup_timeout": 30
+}

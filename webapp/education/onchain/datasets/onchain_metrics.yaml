@@ -1,0 +1,58 @@
+schema:
+  metric: string (نام متریک)
+  definition: string (تعریف دقیق و استاندارد جهانی)
+  formula: string (فرمول یا روش محاسبه؛ SQL/Pseudo/Python)
+  unit: string (واحد اندازه‌گیری؛ e.g. 'آدرس/روز', 'بدون واحد', 'BTC/USD')
+  category: string (Activity, Valuation, Profitability, Flow, Concentration, Risk)
+  relevance: string (کاربرد کلیدی در تحلیل، e.g. market timing, risk signal)
+  notes: string (محدودیت‌ها، هشدارهای تفسیری، ملاحظات L1/L2/DeFi)
+metrics:
+- metric: Active Addresses
+  definition: تعداد آدرس‌های منحصربه‌فردی که در یک بازه مشخص تراکنشی ثبت کرده‌اند.
+  formula: COUNT(DISTINCT from_address ∪ to_address) در بازه T
+  unit: آدرس/روز
+  category: Activity
+  relevance: شاخص فعالیت شبکه و سلامت آن
+  notes: حساس به اسپم/ایردراپ؛ قیاس‌پذیری L1 و L2 باید با دقت انجام شود.
+- metric: NVT (Network Value to Transactions)
+  definition: نسبت ارزش بازار به ارزش دلاری تراکنش‌ها.
+  formula: NVT = MarketCap / TxVolumeUSD (میانگین متحرک 7 یا 30 روزه)
+  unit: بدون واحد
+  category: Valuation
+  relevance: ابزار مقایسه شبکه‌ها؛ مشابه P/E در بازار سهام.
+  notes: نیازمند داده‌های دقیق تراکنش؛ حساس به wash trading و تراکنش‌های bridge.
+- metric: SOPR (Spent Output Profit Ratio)
+  definition: نسبت سود/زیان محقق‌شده خروجی‌های خرج‌شده.
+  formula: SOPR = Σ(Price_spent * Volume) / Σ(Price_acquired * Volume)
+  unit: بدون واحد
+  category: Profitability
+  relevance: اندازه‌گیری دوره‌های سود/زیان محقق‌شده توسط سرمایه‌گذاران.
+  notes: برای UTXO استاندارد است؛ در Account-based تقریب نیاز دارد.
+- metric: Exchange Netflow
+  definition: خالص جریان کوین‌ها به/از صرافی‌های متمرکز.
+  formula: Netflow = Inflow - Outflow (برای هر دارایی و بازه)
+  unit: کوین/روز یا USD/روز
+  category: Flow
+  relevance: سیگنال فشار فروش/انباشت؛ معیار کلیدی رفتار صرافی‌ها.
+  notes: وابسته به صحت برچسب‌ها؛ انتقال‌های داخلی صرافی باید حذف شوند.
+- metric: Whale Transfers
+  definition: تعداد/حجم تراکنش‌های بزرگ فراتر از آستانه.
+  formula: Threshold = Percentile(90/95) یا مقدار ثابت وابسته به دارایی
+  unit: تراکنش/روز یا کوین/روز
+  category: Concentration
+  relevance: نمایانگر حرکات نهنگ‌ها و تغییرات نقدینگی.
+  notes: تقسیم تراکنش‌ها به بخش‌های کوچک می‌تواند سیگنال را پنهان کند.
+- metric: Top Holder Concentration
+  definition: درصد دارایی نگهداری‌شده توسط 10 یا 100 آدرس برتر.
+  formula: Σ(balance_top10) / Σ(balance_total)
+  unit: '%'
+  category: Concentration
+  relevance: اندازه‌گیری ریسک تمرکز مالکیت.
+  notes: نیازمند برچسب‌گذاری دقیق؛ تغییر مالکیت داخلی باید فیلتر شود.
+- metric: Dormancy / Coin Days Destroyed (CDD)
+  definition: اندازه‌گیری سن دارایی‌های خرج‌شده.
+  formula: Σ(value * age_in_days)
+  unit: coin-days
+  category: Risk
+  relevance: نمایانگر فعال‌سازی کوین‌های قدیمی؛ سیگنال تغییر چرخه.
+  notes: وابسته به مدل UTXO؛ در شبکه‌های Account-based تقریب نیاز دارد.

@@ -1,0 +1,133 @@
+version: v2.0-global
+generated_at: '2025-09-05T21:48:01.762056Z'
+projects:
+- project_id: aave-protocol-aave
+  identity:
+    name: Aave Protocol
+    ticker: AAVE
+    chains: &id001
+    - Ethereum
+    sector: Lending
+    sub_sectors: []
+    launch_date: 2020-10
+    links:
+      website: https://aave.com
+      docs: https://docs.aave.com
+      github: https://github.com/aave
+      twitter: https://twitter.com/aave
+      discord: https://discord.gg/aave
+      others: null
+  tokenomics:
+    max_supply: null
+    circulating_supply: null
+    emission_model: null
+    vesting:
+      cliff: null
+      schedule: null
+      unlock_calendar_url: null
+    value_mechanisms:
+      fee_capture: null
+      burn_mechanism: null
+      staking_model: null
+      utility: []
+  governance:
+    model: null
+    vote_token: null
+    quorum: null
+    timelock: null
+    council_or_security_board: null
+    holder_concentration:
+      gini: null
+      top10_pct: null
+  market_liquidity:
+    fdv_usd: null
+    marketcap_usd: null
+    volume_24h_usd: null
+    depth_pm1pct_usd: null
+    exchanges: []
+    amm_pools: []
+    liquidity_program: null
+  revenue_usecase:
+    revenue_streams: []
+    tokenholder_allocation_pct: null
+    last_12m_protocol_revenue_usd: null
+    last_12m_tokenholder_revenue_usd: null
+    vce: null
+    user_metrics:
+      mau: null
+      dau: null
+      retention_cohorts: null
+      ltv: null
+      cac: null
+    unit_economics:
+      gross_margin_pct: null
+      contribution_margin_pct: null
+  security:
+    audits: []
+    bug_bounty: null
+    incidents: []
+    mttr_hours: null
+    oracle_providers: []
+  treasury:
+    assets: []
+    runway_months: null
+    allocation_policy: null
+    buyback_policy: null
+  legal_compliance:
+    entity_jurisdiction: null
+    mica_classification: null
+    howey_risk: null
+    kyc_aml_status: null
+  risk_scores:
+    unlock_risk_index: null
+    governance_health_score: null
+    investor_value_add_score: null
+    regulatory_risk_index: null
+    global_score_0_1000: null
+    grade: null
+  valuation:
+    pf_ratio: null
+    ev_to_revenue: null
+    mc_to_tvl: null
+    dcf_summary: null
+  data:
+    sources: []
+    last_updated: null
+    data_quality_notes: null
+  raw_original:
+    id: aave
+    name: Aave Protocol
+    ticker: AAVE
+    category: Lending
+    chains: *id001
+    website: https://aave.com
+    whitepaper: https://aave.com/whitepaper
+    docs: https://docs.aave.com
+    github: https://github.com/aave
+    twitter: https://twitter.com/aave
+    discord: https://discord.gg/aave
+    launch_date: 2020-10
+    investors:
+    - Placeholder
+    founders:
+    - name: Stani Kulechov
+      role: Founder
+      links:
+      - https://twitter.com/StaniKulechov
+    token:
+      contract: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9'
+      chain: Ethereum
+      max_supply: 16000000
+      total_supply: 16000000
+      initial_circulating: null
+      emission_model: Fixed supply with allocations/vesting; verify current details.
+      vesting: Verify vesting/lock schedules from official docs.
+      allocation:
+      - bucket: team
+        percent: null
+      - bucket: ecosystem/treasury
+        percent: null
+      - bucket: public/private
+        percent: null
+    notes: این ورودی نمونه است. پیش از استفاده سرمایه‌گذاری، اعداد را از مستندات رسمی
+      راستی‌آزمایی کنید.

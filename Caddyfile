@@ -1,0 +1,18 @@
+nexus-aitech.net, www.nexus-aitech.net {
+  encode zstd gzip
+
+  handle_path /api/* {
+    reverse_proxy api:8000
+  }
+
+  reverse_proxy webapp:3000
+
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    X-Frame-Options "DENY"
+  }
+
+  tls eliasmohseni22@gmail.com
+}

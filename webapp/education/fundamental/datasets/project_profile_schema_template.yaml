@@ -1,0 +1,126 @@
+version: v2.0-global
+project_template:
+  project_id: <slugified unique id>
+  identity:
+    name: <NEXUSA>
+    ticker: <TOKEN>
+    chains:
+    - <Ethereum>
+    - <Arbitrum>
+    sector: <DeFi/Infra/RWA/...>
+    sub_sectors:
+    - <Lending>
+    - <AMM>
+    - '...'
+    launch_date: <YYYY-MM-DD>
+    links:
+      website: <https://...>
+      docs: <https://docs...>
+      github: <https://github.com/...>
+      twitter: <https://x.com/...>
+      discord: <https://discord.gg/...>
+      others:
+      - <link1>
+      - <link2>
+  tokenomics:
+    max_supply: <number>
+    circulating_supply: <number>
+    emission_model: <fixed/decay/dynamic>
+    vesting:
+      cliff: <months>
+      schedule: <description or table ref>
+      unlock_calendar_url: <https://...>
+    value_mechanisms:
+      fee_capture: <yes/no/details>
+      burn_mechanism: <buyback&burn/EIP-1559-like/...>
+      staking_model: <PoS/Service Staking/None>
+      utility:
+      - <governance>
+      - <gas>
+      - <collateral>
+      - <access>
+      - <work>
+  governance:
+    model: <1T1V/Delegated/Quadratic/Council>
+    vote_token: <TOKEN or NFT>
+    quorum: <%>
+    timelock: <hours/days>
+    council_or_security_board: <details>
+    holder_concentration:
+      gini: <0-1>
+      top10_pct: <%>
+  market_liquidity:
+    fdv_usd: <number>
+    marketcap_usd: <number>
+    volume_24h_usd: <number>
+    depth_pm1pct_usd: <number>
+    exchanges:
+    - <CEX1>
+    - <DEX1>
+    amm_pools:
+    - <pool address/URL>
+    liquidity_program: <details>
+  revenue_usecase:
+    revenue_streams:
+    - <trading fees>
+    - <interest spread>
+    - '...'
+    tokenholder_allocation_pct: <% of revenue to token>
+    last_12m_protocol_revenue_usd: <number>
+    last_12m_tokenholder_revenue_usd: <number>
+    vce: <TokenholderRevenue/ProtocolRevenue>
+    user_metrics:
+      mau: <number>
+      dau: <number>
+      retention_cohorts: <table/ref>
+      ltv: <number>
+      cac: <number>
+    unit_economics:
+      gross_margin_pct: <%>
+      contribution_margin_pct: <%>
+  security:
+    audits:
+    - <firm1>
+    - <firm2>
+    bug_bounty: <platform/details>
+    incidents:
+    - date: <YYYY-MM-DD>
+      severity: <low/med/high>
+      notes: <...>
+    mttr_hours: <number>
+    oracle_providers:
+    - <Chainlink>
+    - <TWAP>
+    - '...'
+  treasury:
+    assets:
+    - symbol: USDC
+      amount: <number>
+      usd_value: <number>
+      liquidity_score: <0-1>
+    runway_months: <number>
+    allocation_policy: <policy text>
+    buyback_policy: <policy text>
+  legal_compliance:
+    entity_jurisdiction: <country/state>
+    mica_classification: <ART/EMT/Other>
+    howey_risk: <low/med/high>
+    kyc_aml_status: <N/A/partial/full>
+  risk_scores:
+    unlock_risk_index: <0-100>
+    governance_health_score: <0-100>
+    investor_value_add_score: <0-100>
+    regulatory_risk_index: <0-100>
+    global_score_0_1000: <0-1000>
+    grade: <Elite/Advanced/Acceptable/Risky>
+  valuation:
+    pf_ratio: <number>
+    ev_to_revenue: <number>
+    mc_to_tvl: <number>
+    dcf_summary: <text or ref>
+  data:
+    sources:
+    - <link1>
+    - <link2>
+    last_updated: <YYYY-MM-DD>
+    data_quality_notes: <text>

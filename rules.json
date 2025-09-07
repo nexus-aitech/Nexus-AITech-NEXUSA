@@ -1,0 +1,149 @@
+{
+  "layers": [
+    "ingestion",
+    "storage",
+    "feature_engine",
+    "signal_engine",
+    "backtesting",
+    "llm_reporting",
+    "orchestration",
+    "content",
+    "assessment",
+    "lab",
+    "tutor",
+    "recommender",
+    "gamification",
+    "community",
+    "telemetry",
+    "compliance",
+    "frontend"
+  ],
+  "layer_rules": {
+    "ingestion": [
+      "ingestion"
+    ],
+    "storage": [
+      "storage"
+    ],
+    "feature_engine": [
+      "feature_engine",
+      "ingestion",
+      "storage"
+    ],
+    "signal_engine": [
+      "signal_engine",
+      "feature_engine",
+      "storage"
+    ],
+    "backtesting": [
+      "backtesting",
+      "signal_engine",
+      "feature_engine",
+      "storage"
+    ],
+    "llm_reporting": [
+      "llm_reporting",
+      "backtesting",
+      "signal_engine",
+      "feature_engine",
+      "storage"
+    ],
+    "orchestration": [
+      "orchestration",
+      "ingestion",
+      "feature_engine",
+      "signal_engine",
+      "backtesting",
+      "llm_reporting",
+      "storage"
+    ],
+    "content": [
+      "content"
+    ],
+    "assessment": [
+      "assessment",
+      "content"
+    ],
+    "lab": [
+      "lab",
+      "content",
+      "assessment"
+    ],
+    "tutor": [
+      "tutor",
+      "content",
+      "telemetry",
+      "recommender"
+    ],
+    "recommender": [
+      "recommender",
+      "content",
+      "telemetry"
+    ],
+    "gamification": [
+      "gamification",
+      "telemetry"
+    ],
+    "community": [
+      "community",
+      "telemetry"
+    ],
+    "telemetry": [
+      "telemetry"
+    ],
+    "compliance": [
+      "compliance",
+      "telemetry",
+      "content",
+      "assessment",
+      "lab",
+      "tutor",
+      "recommender",
+      "gamification",
+      "community"
+    ],
+    "frontend": [
+      "frontend"
+    ]
+  },
+  "module_layers": {
+    "ingestion/": "ingestion",
+    "storage/": "storage",
+    "features/": "feature_engine",
+    "feature_engine/": "feature_engine",
+    "signals/": "signal_engine",
+    "signal_engine/": "signal_engine",
+    "backtesting/": "backtesting",
+    "reports/": "llm_reporting",
+    "llm_reporting/": "llm_reporting",
+    "orchestration/": "orchestration",
+    "content/": "content",
+    "assessment/": "assessment",
+    "lab/": "lab",
+    "tutor/": "tutor",
+    "recommender/": "recommender",
+    "gamification/": "gamification",
+    "community/": "community",
+    "telemetry/": "telemetry",
+    "compliance/": "compliance",
+    "frontend/": "frontend"
+  },
+  "required_env_keys": [
+    "*_API_KEY",
+    "*_SECRET_KEY"
+  ],
+  "entrypoints": [
+    "main.py"
+  ],
+  "exclude": [
+    "venv",
+    ".git",
+    "node_modules",
+    "__pycache__",
+    ".mypy_cache",
+    ".pytest_cache",
+    "dist",
+    "build"
+  ],
+  "complexity_threshold": 12
+}

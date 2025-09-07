@@ -1,0 +1,10 @@
+graph TD
+flowchart TB
+  A[WebApp] -->|REST| C((Content))
+  A -->|REST| S((Assessment))
+  A -->|REST| T((Tutor))
+  A -->|REST| L((Lab))
+  A -->|REST| R((Recommender))
+  A -->|REST| M((Community))
+  T -->|VectorDB| V[(Embeddings)]
+  --> K((Kafka))

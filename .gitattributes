@@ -1,0 +1,5 @@
+/.gitignore         export-ignore
+/.github            export-ignore
+/.vscode            export-ignore
+/tests/fixtures     export-ignore
+/docs               export-ignore

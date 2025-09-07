@@ -1,0 +1,8 @@
+crypto-basics:
+  - id: q1
+    type: mcq
+    text: "BTC total supply?"
+    choices:
+      - {id: a, text: "21 million", is_correct: true}
+      - {id: b, text: "Unlimited"}
+      - {id: c, text: "210 million"}

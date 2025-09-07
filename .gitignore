@@ -1,0 +1,157 @@
+# ======================
+# Python
+# ======================
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+.python-version
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+
+# Env files (keep example)
+.env
+.env.*
+.env.local
+!.env.example
+!**/*.example
+
+# Tests / Coverage / Tox
+.tox/
+.nox/
+.pytest_cache/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+htmlcov/
+
+# Type checkers / Linters
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ======================
+# Node / Next.js (webapp + global)
+# ======================
+node_modules
+.next
+**/node_modules/
+webapp/.next/
+webapp/out/
+**/.turbo/
+.pnp.*
+.yarn/*
+!.yarn/patches/
+!.yarn/plugins/
+!.yarn/releases/
+!.yarn/sdks/
+!.yarn/versions/
+
+# ======================
+# Secrets / Certs
+# ======================
+certs/
+*.key
+*.crt
+*.pem
+*.p12
+*.pfx
+*.der
+*.csr
+*.jks
+*.keystore
+
+# ======================
+# Logs / Temp
+# ======================
+logs/**
+!logs/.gitkeep
+*.log
+tmp/
+temp/
+*.tmp
+
+# ======================
+# Terraform / Helm
+# ======================
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+**/charts/*.tgz
+**/Chart.lock
+
+# ======================
+# Kubernetes (keep manifests; ignore local kube config)
+# ======================
+.kube/
+kubeconfig
+
+# ======================
+# IDE / OS junk
+# ======================
+.idea/
+.vscode/
+*.code-workspace
+*.iml
+.history/
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Vim / Editors
+*.swp
+*.swo
+
+# --- Added to meet baseline ---
+node_modules/
+.next/
+out/
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+.cache/
+# --- NEXUSA recommended ignores ---
+*.pyc
+*.pyo
+# NEXUSA Security — enforced ignores
+# Secrets and sensitive files
+# GitLeaks config if any generated locally
+.gitleaks.*".env" 

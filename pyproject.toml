@@ -1,0 +1,105 @@
+[build-system]
+requires = ["hatchling>=1.25", "setuptools>=68", "wheel"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nexusa"
+version = "0.1.0"
+description = "NEXUSA – modular platform for ingestion, feature/signal engines, backtesting, LLM reporting, and orchestration."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Elias" }]
+license = { text = "Proprietary" }
+keywords = ["trading", "signals", "backtesting", "fastapi", "nexusa"]
+
+dependencies = [
+  # API server
+  "fastapi>=0.110,<0.200",
+  "uvicorn[standard]>=0.22,<1.0",
+
+  # Core types / config
+  "pydantic>=2.5,<3.0",
+  "PyYAML>=6.0,<7.0",
+  "typing-extensions>=4.7,<5.0",
+
+  # Data & math
+  "pandas>=2.0,<3.0",
+  "numpy>=1.26,<3.0",
+
+  # Networking / exchanges
+  "httpx>=0.24,<0.28",
+  "requests>=2.31,<3.0",
+  "websockets>=11,<13",
+
+  # Utilities
+  "python-dotenv>=1.0,<2.0",
+  "tenacity>=8,<9",
+  "orjson>=3.9,<4.0",
+
+  # Observability & infra
+  "python-json-logger>=2.0.7",
+  "opentelemetry-sdk>=1.26.0",
+  "opentelemetry-instrumentation-fastapi>=0.47b0",
+  "kubernetes>=30.1.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+  "backtesting",
+  "core",
+  "features",
+  "ingestion",
+  "orchestration",
+  "reports",
+  "signals",
+  "storage",
+  "ui",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0",
+  "pytest-asyncio>=0.23",
+  "mypy>=1.6",
+  "ruff>=0.5",
+  "black>=24.1",
+  "types-PyYAML>=6.0.12",
+  "types-requests>=2.31.0.10",
+]
+notebook = ["jupyter>=1.0", "ipykernel>=6.0"]
+viz = ["matplotlib>=3.8"]
+
+[project.scripts]
+nexusa-api = "uvicorn.main:main"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "B"]
+ignore = ["E203", "E266", "E501"]
+exclude = [".git", ".venv", "venv", "__pycache__", "build", "dist", "node_modules"]
+
+[tool.mypy]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+disallow_incomplete_defs = false
+disallow_untyped_defs = false
+no_implicit_optional = true
+namespace_packages = true
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["."]
+typeCheckingMode = "basic"
+filterwarnings = ["ignore::DeprecationWarning"]

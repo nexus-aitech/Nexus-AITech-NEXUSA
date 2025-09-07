@@ -1,0 +1,42 @@
+# NEXUSA — .dockerignore (keep runtime image lean & secret‑free)
+# Git metadata
+.git
+.gitattributes
+.gitignore
+.github
+
+# Local env/secrets (never copy into images)
+.env
+.env.*
+*.key
+*.pem
+*.p12
+
+# Python build/cache
+__pycache__/
+*.pyc
+*.pyo
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Node/web build
+node_modules/
+webapp/node_modules/
+dist/
+build/
+.next/
+out/
+
+# Tests & docs (not needed in runtime image)
+tests/
+docs/
+
+# OS/IDE junk
+.DS_Store
+.vscode
+.idea
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,32 @@
+version: v2.0-global
+indicator_template:
+  indicator_id: <slugified unique id>
+  name: <Indicator Name>
+  category: <Rates/Inflation/Liquidity/Dollar/etc.>
+  description: <short description>
+  source: <source URL>
+  provider: <FRED/BLS/IMF/etc.>
+  frequency: <daily/monthly/quarterly>
+  unit: <%/index/USD bn>
+  transformations:
+    yoy: <optional transformation>
+    mom: <optional transformation>
+    real_adjusted: <optional inflation adjustment>
+    zscore: <yes/no>
+  coverage:
+    geography: <US/Global/etc.>
+    start_date: <YYYY-MM-DD>
+    last_updated: <YYYY-MM-DD>
+  usage:
+    linked_modules:
+    - 01_interest_rates
+    - 02_inflation_cpi_pce
+    - 03_liquidity_m2_dxy
+    signal_roles:
+    - feature
+    - trigger
+    - validation
+  quality:
+    data_quality: <high/medium/low>
+    timeliness: <lag days>
+    revisions: <yes/no>

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nexusa
+  labels:
+    name: nexusa
+    app.kubernetes.io/part-of: nexusa

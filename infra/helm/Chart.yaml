@@ -1,0 +1,17 @@
+apiVersion: v2
+name: nexusa
+description: NEXUSA umbrella chart (production-ready)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+home: https://github.com/nexus-aitech/NEXUSA
+icon: https://nexus-aitech.github.io/assets/nexusa-icon.png
+keywords:
+  - trading
+  - ai
+  - analytics
+sources:
+  - https://github.com/nexus-aitech/NEXUSA
+maintainers:
+  - name: Nexus-AITech
+    email: support@nexus-ai.tech

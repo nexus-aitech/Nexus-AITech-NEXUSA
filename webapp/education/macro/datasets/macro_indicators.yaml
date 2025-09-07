@@ -1,0 +1,32 @@
+schema:
+  indicator: نام شاخص
+  source: منبع داده (FRED, IMF, WorldBank, ...)
+  frequency: daily/monthly/quarterly
+  unit: واحد
+  notes: توضیحات تفسیری
+indicators:
+- indicator: Fed Funds Rate
+  source: 'FRED: FEDFUNDS'
+  frequency: monthly
+  unit: '%'
+  notes: نرخ بهره سیاستی ایالات متحده.
+- indicator: CPI (YoY)
+  source: 'FRED: CPIAUCSL'
+  frequency: monthly
+  unit: '%'
+  notes: شاخص قیمت مصرف‌کننده؛ YoY برای تورم سالانه.
+- indicator: Core PCE
+  source: 'FRED: PCEPILFE'
+  frequency: monthly
+  unit: '%'
+  notes: تورم مصرف شخصی، بدون انرژی/غذا.
+- indicator: M2
+  source: 'FRED: M2SL'
+  frequency: monthly
+  unit: USD
+  notes: حجم پول گسترده.
+- indicator: DXY
+  source: 'FRED: DTWEXBGS'
+  frequency: daily
+  unit: Index
+  notes: شاخص دلار آمریکا.
