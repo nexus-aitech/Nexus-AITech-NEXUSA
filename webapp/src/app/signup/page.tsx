@@ -1,10 +1,10 @@
-import SignupSection from "@/components/signup-section";
+// =============================================================
+// SIGNUP WIZARD PAGE — webapp/src/app/signup/page.tsx
+// =============================================================
+import SignupWizard from "@/components/auth/SignupWizard";
 
-export const metadata = {
-  title: "Sign up – NEXUSA",
-  description: "Create a NEXUSA account."
-};
 
-export default function SignupPage() {
-  return <SignupSection />;
+export const metadata = { title: "Sign Up — Nexus-AITech" };
+export default function Page() {
+return <SignupWizard redirectOnDone="/" />;
 }

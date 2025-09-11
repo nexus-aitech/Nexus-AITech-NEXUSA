@@ -62,6 +62,7 @@ node_modules
 **/node_modules/
 webapp/.next/
 webapp/out/
+webapp/tsconfig.tsbuildinfo
 **/.turbo/
 .pnp.*
 .yarn/*
@@ -154,3 +155,5 @@ coverage/
 # GitLeaks config if any generated locally
 .gitleaks.*".env" 
 !webapp/lib/**
+
+/generated/prisma
