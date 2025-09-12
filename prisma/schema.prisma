@@ -1,15 +1,47 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
-
+// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String      @id @default(cuid())
+  email          String      @unique
+  phone          String      @unique // E.164 (e.g., +98912...)
+  emailVerified  Boolean     @default(false)
+  phoneVerified  Boolean     @default(false)
+  kycStatus      String      @default("pending") // pending|approved|rejected|review
+  docFingerprint String      @unique // HMAC(doc_number|dob|country)
+  passwordHash   String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  kycSession     KycSession?
+}
+
+model KycSession {
+  id         String   @id @default(cuid())
+  provider   String
+  externalId String   @unique
+  status     String
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model EmailOTP {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  codeHash  String
+  expiresAt DateTime
+}
+
+model PhoneOTP {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  codeHash  String
+  expiresAt DateTime
 }

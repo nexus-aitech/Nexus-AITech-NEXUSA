@@ -6,6 +6,10 @@
     "tailwindcss": "^4.1.13"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.1"
+    "@prisma/client": "^6.16.1",
+    "@upstash/redis": "^1.35.3",
+    "argon2": "^0.44.0",
+    "libphonenumber-js": "^1.12.17",
+    "lucide-react": "^0.544.0"
   }
 }
