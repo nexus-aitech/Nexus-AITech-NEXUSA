@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Primary, Ghost } from "@/components/ui/Button";
@@ -10,7 +12,7 @@ export default function Header() {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
     onScroll();
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -26,15 +28,20 @@ export default function Header() {
       aria-label="Global navigation"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Logo href="/" variant="full" size={28} label="Nexus-AITech Home" />
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-400/20 text-emerald-300 font-black">N</span>
+        <div className="flex h-16 items-center justify-between">
+          {/* Brand */}
+          <Link href="/" aria-label="Nexus-AITech Home" className="flex items-center gap-2">
+            <Logo />
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-400/20 text-emerald-300 font-black">
+              N
+            </span>
             <div>
               <div className="text-white font-extrabold tracking-tight leading-none">NEXUSA</div>
               <div className="text-[10px] text-white/60 -mt-0.5">AI • Signals • Backtesting • Education</div>
             </div>
           </Link>
 
+          {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">
             <HeaderLink href="/docs">Docs</HeaderLink>
             <HeaderLink href="/pricing">Pricing</HeaderLink>
@@ -42,17 +49,28 @@ export default function Header() {
             <HeaderLink href="/contact">Contact</HeaderLink>
           </nav>
 
+          {/* Desktop actions */}
           <div className="hidden lg:flex items-center gap-3">
-            <Link href="/auth/signin" aria-label="Sign in"><Ghost size="sm">Sign in</Ghost></Link>
-            <Link href="/auth/signup" aria-label="Sign up"><Ghost size="sm">Sign up</Ghost></Link>
-            <Link href="/demo" aria-label="Live demo"><Ghost size="sm">Demo</Ghost></Link>
-            <Link href="/pricing" aria-label="Start free trial"><Primary size="sm">Free Trial</Primary></Link>
+            <Link href="/auth/signin" aria-label="Sign in">
+              <Ghost size="sm">Sign in</Ghost>
+            </Link>
+            <Link href="/auth/signup" aria-label="Sign up">
+              <Ghost size="sm">Sign up</Ghost>
+            </Link>
+            <Link href="/demo" aria-label="Live demo">
+              <Ghost size="sm">Demo</Ghost>
+            </Link>
+            <Link href="/pricing" aria-label="Start free trial">
+              <Primary size="sm">Free Trial</Primary>
+            </Link>
           </div>
 
+          {/* Mobile menu button */}
           <button
+            type="button"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpen((v) => !v)}
             className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-white/80 hover:bg-white/10"
           >
             <span className="sr-only">Menu</span>
@@ -67,7 +85,12 @@ export default function Header() {
         </div>
       </div>
 
-      <div className={`lg:hidden overflow-hidden transition-[max-height,opacity] ${open ? "max-h-[60vh] opacity-100" : "max-h-0 opacity-0"}`}>
+      {/* Mobile menu */}
+      <div
+        className={`lg:hidden overflow-hidden transition-[max-height,opacity] ${
+          open ? "max-h-[60vh] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-6">
           <div className="grid gap-3">
             <MobileLink href="/docs" label="Docs" />
@@ -90,7 +113,10 @@ export default function Header() {
 
 function HeaderLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="px-3 py-2 text-sm rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition">
+    <Link
+      href={href}
+      className="px-3 py-2 text-sm rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition"
+    >
       {children}
     </Link>
   );

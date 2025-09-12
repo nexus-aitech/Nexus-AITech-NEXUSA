@@ -2,19 +2,16 @@
 // File: webapp/src/app/reports/page.tsx
 // Adds CitationPopover under the report content (no 404). Server component safe via dynamic import.
 // ==============================================
-import Link from "next/link";
-import dynamic from "next/dynamic";
+"use client";
+export const dynamic = "force-dynamic";
 
-// Lazy-load client-only component to keep this page as a Server Component
-const CitationPopover = dynamic(
-  () => import("@/components/shared/CitationPopover").then((m) => m.CitationPopover),
+import Link from "next/link";
+import NextDynamic from "next/dynamic";
+
+const CitationPopover = NextDynamic(
+  () => import("@/components/shared/CitationPopover").then(m => m.CitationPopover),
   { ssr: false }
 );
-
-export const metadata = {
-  title: "Reports — NEXUSA",
-  description: "LLM-powered reports and analytics",
-};
 
 export default function ReportsPage() {
   return (

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/branding/Logo";
 
 export function ShellNav() {
   return (
