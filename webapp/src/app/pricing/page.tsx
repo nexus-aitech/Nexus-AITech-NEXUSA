@@ -1,4 +1,3 @@
-"use client";
 import { Card } from "@/components/ui/Card";
 import { Primary, Ghost } from "@/components/ui/Button";
 
