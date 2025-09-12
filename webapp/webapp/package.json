@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "nexusa-webapp": "file:.."
+  }
+}

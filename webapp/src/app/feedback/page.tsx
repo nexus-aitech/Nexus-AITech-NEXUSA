@@ -1,4 +1,4 @@
-import FeedbackSection from "@/components/feedback-section";
+import Feedback from "@/components/sections/Feedback";
 
 export const metadata = {
   title: "Feedback – NEXUSA",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function FeedbackPage() {
-  return <FeedbackSection />;
+  return <Feedback />;
 }

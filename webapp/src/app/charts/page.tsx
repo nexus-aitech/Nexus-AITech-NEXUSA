@@ -3,20 +3,29 @@
 import Link from "next/link";
 import Chart from "@/components/ui/Chart";
 
-const demo = [
-  { x: "09:00", y: 12 },
-  { x: "10:00", y: 18 },
-  { x: "11:00", y: 15 },
-];
-
 export default function ChartsPage() {
+  const data = [
+    { x: "09:00", price: 101, volume: 230, signal: 0.4 },
+    { x: "09:05", price: 103, volume: 180, signal: 0.6 },
+    // ...
+  ];
+
   return (
-    <main dir="rtl" className="mx-auto max-w-6xl p-6 text-white">
-      <nav className="text-sm text-white/60"><Link href="/" className="hover:underline">خانه</Link> / <span className="text-white">Charts</span></nav>
-      <h1 className="mt-4 text-2xl font-bold">Charts & Analytics</h1>
-      <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.04] p-4">
-        <Chart data={demo} />
-      </div>
-    </main>
+    <div className="p-6">
+      <h1 className="text-2xl text-white font-bold">Charts & Analytics</h1>
+      <Chart
+        data={data}
+        series={[
+          { key: "price", name: "Price", kind: "line", strokeWidth: 2 },
+          { key: "signal", name: "Signal", kind: "area", gradient: true, yAxis: "right" },
+          { key: "volume", name: "Volume", kind: "bar",   yAxis: "right" },
+        ]}
+        yLeftLabel="Price"
+        yRightLabel="Signal / Volume"
+        xTickFormatter={(v) => String(v)}
+        yLeftTickFormatter={(v) => v.toFixed(2)}
+        yRightTickFormatter={(v) => v.toLocaleString()}
+      />
+    </div>
   );
 }
