@@ -1,5 +1,6 @@
-import { Card } from "@/components/ui/Card";
+"use client";
 
+import { Card } from "@/components/ui/Card";
 import React from "react";
 import type { Metadata } from "next";
 
