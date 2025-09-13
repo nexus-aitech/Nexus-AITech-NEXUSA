@@ -2,6 +2,7 @@
 // File: webapp/src/app/page.tsx
 // Adds global Feedback form at the end of the home page
 // ==============================================
+
 import { Primary, Ghost } from "@/components/ui/Button";
 import { Stat } from "@/components/ui/Stat";
 import Link from "next/link";
@@ -9,6 +10,8 @@ import Header from "@/components/layout/Header";
 import Hero from "@/components/layout/Hero";
 import CoreCapabilities from "@/components/sections/CoreCapabilities";
 import Feedback from "@/components/sections/Feedback"; // ⬅️ added
+
+export const revalidate = 0;
 
 function Container({ children }: { children: React.ReactNode }) {
   return <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">{children}</div>;
@@ -86,44 +89,4 @@ export default function HomePage() {
       </Container>
     </div>
   );
-}
-
-// ==============================================
-// File: webapp/src/app/feedback/route.ts
-// Minimal secure-ish POST endpoint for Feedback component
-// ==============================================
-import { NextResponse } from "next/server";
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json().catch(() => ({}));
-
-    const message: string = String(body?.message || "").trim();
-    if (!message || message.length < 8) {
-      return NextResponse.json({ ok: false, error: "پیام خیلی کوتاه است." }, { status: 400 });
-    }
-
-    const payload = {
-      id: body?.id || undefined,
-      email: body?.email || "",
-      message,
-      category: body?.category || "idea",
-      severity: body?.severity || "medium",
-      allowContact: Boolean(body?.allowContact),
-      context: body?.context || {},
-      server: {
-        ts: new Date().toISOString(),
-        // نمونه‌ای از متادیتا — در صورت نیاز می‌توانید IP/UA را ذخیره کنید
-        ua: (req.headers.get("user-agent") || "").slice(0, 300),
-        ip: (req.headers.get("x-forwarded-for") || "").split(",")[0] || undefined,
-      },
-    };
-
-    // TODO: ذخیره در DB / ارسال به Slack / ساخت Issue — فعلاً فقط لاگ می‌کنیم
-    console.log("/feedback", JSON.stringify(payload));
-
-    return NextResponse.json({ ok: true, id: payload.id || null }, { status: 200 });
-  } catch (err: any) {
-    return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });
-  }
 }
