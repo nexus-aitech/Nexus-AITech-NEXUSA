@@ -1,65 +1,131 @@
-env: ${NEXUSA_ENV:dev}  # resolved by pydantic-settings (default: dev)
-debug: false  # set explicitly as boolean
+app_env: production
+api_host: 0.0.0.0
+api_port: 8080
+debug: false
+enable_llm_reporting: true
 
-pipeline:
-  steps: [ingestion, features, signals, backtest]
-  mode: live
-  input: null
-
+# ==============================
+# Ingestion Layer
+# ==============================
 ingestion:
   mode: live
-  methods: [websocket]
-  exchanges: [binance]  # replaced placeholder with actual list
+  methods: ["websocket", "rest"]   # WebSocket برای تیک‌ها، REST برای backfill
+  exchanges:
+    - binance
+    - bingx
+    - bitget
+    - bybit
+    - coinex
+    - kucoin
+    - okx
 
   retry_policy:
-    retries: 3
-    backoff_factor: 2.0
+    retries: 10
+    backoff_strategy: exponential_jitter  # پیشرفته‌تر از backoff خطی
     initial_delay_ms: 500
-    max_delay_ms: 10000
+    max_delay_ms: 60000
 
-  # نمادها به صورت کانُنیکال بدون اسلش (لیست نمونه؛ می‌تونی کم/زیاد کنی)
-  symbols:
-    - PAXGUSDT
-    - BTCUSDT
-    - ETHUSDT
-    - XRPUSDT
-    - BNBUSDT
-    - SOLUSDT
-    - NEARUSDT
-    - APTUSDT
-    - ICPUSDT
-    - AAVEUSDT
-    - RNDERUSDT
-    - TAOUSDT
-    - VETUSDT
-    - FETUSDT
-    - ALGOUSDT
-    - ARBUSDT
-    - FILUSDT
-    - ENAUSDT
-    - ATOMUSDT
-    - OPUSDT
-    - WIFUSDT
-    - FLOKIUSDT
-    - TIAUSDT
-    - GRTUSDT
-    - TONUSDT
+  # کنترل فشار بالا
+  subscribe_batch_size: 100
+  max_queue: 100000
+  max_parallel_connections: 50
+  heartbeat_interval_sec: 30
 
-  subscribe_batch_size: 20
-  max_queue: 10000
-
-  # حساب‌ها/کلیدها (اختیاری؛ بعضی فیدهای عمومی بدون کلید هم کار می‌کنند)
   accounts:
-    __EXCHANGE_NAME__:
+    binance:
       enabled: true
-      apiKey: ${__EXCHANGE_API_KEY__}
-      secret: ${__EXCHANGE_SECRET_KEY__}
+      apiKey: ${BINANCE_API_KEY}
+      secret: ${BINANCE_SECRET_KEY}
+    bingx:
+      enabled: true
+      apiKey: ${BINGX_API_KEY}
+      secret: ${BINGX_SECRET_KEY}
+    bitget:
+      enabled: true
+      apiKey: ${BITGET_API_KEY}
+      secret: ${BITGET_SECRET_KEY}
+    bybit:
+      enabled: true
+      apiKey: ${BYBIT_API_KEY}
+      secret: ${BYBIT_SECRET_KEY}
+    coinex:
+      enabled: true
+      apiKey: ${COINEX_API_KEY}
+      secret: ${COINEX_SECRET_KEY}
+    kucoin:
+      enabled: true
+      apiKey: ${KUCOIN_API_KEY}
+      secret: ${KUCOIN_SECRET_KEY}
+    okx:
+      enabled: true
+      apiKey: ${OKX_API_KEY}
+      secret: ${OKX_SECRET_KEY}
+
+  # جفت‌ارزها از DB یا فایل seed لود میشن
+  symbols_from: "db"  # options: db | file | api
+  symbols_file: "/nexusa/symbols_seed.sql"
+
+# ==============================
+# Storage Layer (ClickHouse)
+# ==============================
+env: dev   # یا production
 
 storage:
-  # داخل کانتینر از مسیر داخلی استفاده کن (با volume به /app/lake ماونت شده است)
-  lake_root: "file:///app/lake"
-  tsdb_url: "clickhouse://clickhouse:9000"     # قبلاً localhost → اشتباه در Docker
-  s3_bucket: "nexusa-feature-archive"
+  tsdb_url: "http://localhost:9090"
+  s3_bucket: "nexusa"
   redis:
-    host: redis
+    host: "localhost"
     port: 6379
+    db: 0
+  clickhouse:
+    host: "localhost"
+    port: 9000
+    user: "default"
+    password: "009922333777313"
+    database: "nexusa"
+    compression: zstd
+    connection_pool_size: 20
+    async_insert: true
+    async_insert_busy_timeout_ms: 2000
+    async_insert_max_data_size: 1000000
+
+# ==============================
+# Pipeline Config
+# ==============================
+pipeline:
+  batch_size: 2000
+  flush_interval_ms: 1000
+  deduplicate_events: true
+  enable_metrics: true
+  enable_tracing: true
+  fail_fast: false
+  qos:
+    priority_symbols: ["BTCUSDT", PAXGUSDT "ETHUSDT","BNBUSDT", "XRPUSDT", "SOLUSDT", "NEARUSDT",
+"APTUSDT", "ICPUSDT", "AAVEUSDT", "RNDERUSDT", "TAOUSDT", "VETUSDT",
+"FETUSDT", "ALGOUSDT", "ARBUSDT", "FILUSDT", "ENAUSDT", "ATOMUSDT",
+"TIAUSDT", "GRTUSDT", "TONUSDT", "OPUSDT", "WIFUSDT", "FLOKIUSDT"]  # همیشه realtime پردازش میشن
+    normal_symbols: ["*"]
+
+# ==============================
+# Monitoring & Observability
+# ==============================
+monitoring:
+  prometheus:
+    enabled: true
+    port: 9090
+  logging:
+    level: info
+    rotation: daily
+    retention_days: 30
+  alerts:
+    slack_webhook: ${SLACK_ALERT_WEBHOOK}
+    pagerduty_key: ${PAGERDUTY_KEY}
+
+# ==============================
+# Failover & Resilience
+# ==============================
+failover:
+  region_priority: ["eu-central", "us-east", "ap-southeast"]
+  auto_failover: true
+  snapshot_interval_min: 5
+  recovery_mode: hot_standby

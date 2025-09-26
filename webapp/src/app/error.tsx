@@ -1,23 +1,59 @@
-// webapp/src/app/error.tsx
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
+import { AlertTriangle, Bug, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void; }) {
+export default function ErrorPage({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   useEffect(() => {
-    // می‌تونی اینجا لاگ سفارشی/ارسال به Sentry داشته باشی
-    // console.error(error);
+    console.error(error);
   }, [error]);
 
   return (
-    <main dir="rtl" className="min-h-[70vh] grid place-items-center px-6 text-center">
-      <div>
-        <h1 className="text-3xl font-extrabold mb-2">اوه! مشکلی پیش آمده</h1>
-        <p className="text-white/70 mb-6">اگر مشکل ادامه داشت به پشتیبانی اطلاع دهید. {error?.digest ? `کد: ${error.digest}` : ""}</p>
-        <button onClick={() => reset()} className="rounded-md bg-white text-black px-4 py-2 font-semibold">
-          تلاش مجدد
-        </button>
+    <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
+      <AlertTriangle className="h-16 w-16 text-red-500 mb-4" />
+      <h1 className="text-3xl font-bold mb-2">Something went wrong</h1>
+      <p className="text-white/70 mb-6">
+        We encountered an unexpected error. Please try again or contact support.
+      </p>
+
+      <div className="flex flex-wrap justify-center gap-3">
+        <Button asChild variant="secondary">
+          <Link href="/">
+            <span className="flex items-center">
+              <Home className="mr-2 h-4 w-4" /> Go home
+            </span>
+          </Link>
+        </Button>
+
+        <Button asChild variant="secondary">
+          <Link href="/diagnostics">
+            <span className="flex items-center">
+              <Bug className="mr-2 h-4 w-4" /> Run diagnostics
+            </span>
+          </Link>
+        </Button>
+
+        <Button asChild>
+          <Link
+            href={{
+              pathname: "/contact",
+              query: { topic: "support", ref: "error" },
+            }}
+          >
+            <span className="flex items-center">
+              <AlertTriangle className="mr-2 h-4 w-4" /> Contact support
+            </span>
+          </Link>
+        </Button>
       </div>
-    </main>
+    </div>
   );
 }

@@ -1,26 +1,27 @@
-"""NEXUSA core.config.loader
+"""
+NEXUSA core.config.loader
 
-Config loader utilities:
-- Defines pydantic models for application configuration (Redis/Storage/Registry/Ingestion/App).
-- Loads JSON/YAML from a given path (or env var NEXUSA_CONFIG_PATH), with robust UTF-8 handling.
-- Validates against models and returns a typed AppConfig.
-- Uses logging (not print) for diagnostics and debug dumps.
+- تعریف اسکیمای پیکربندی با Pydantic (v2).
+- لود YAML/JSON با جایگزینی ${ENV_VAR} از os.environ (و .env اگر زودتر load شده باشد).
+- هندلینگ UTF-8 و UTF-8 with BOM.
+- خطاها با logging گزارش می‌شوند؛ ValidationError عیناً بالا پرتاب می‌شود.
 """
 
-# Module implemented per architecture; see README for usage.
-import os
+from __future__ import annotations
+
 import json
 import logging
-from pprint import pformat
+import os
+import re
 from pathlib import Path
+from pprint import pformat
 from typing import Any, Dict, Optional
+from core.config.models import AppConfig
 
-import yaml  # Requires PyYAML
+import yaml
 from pydantic import BaseModel, ValidationError
-from core.config.models import AppConfig  # If your models live elsewhere, adjust import
 
 log = logging.getLogger(__name__)
-
 
 # ========================
 # Config Schema Definition
@@ -64,8 +65,18 @@ class AppConfig(BaseModel):
 
 
 # ========================
-# Loaders
+# Helpers
 # ========================
+
+_ENV_PATTERN = re.compile(r"\$\{([^}]+)\}")
+
+def _sub_env_vars(text: str) -> str:
+    """
+    ${VAR} را با مقدار os.environ['VAR'] جایگزین می‌کند؛
+    اگر تعریف نشده باشد، همان ${VAR} را نگه می‌دارد (تا خطای اعتبارسنجی مشخص بدهد).
+    """
+    return _ENV_PATTERN.sub(lambda m: os.getenv(m.group(1), m.group(0)), text)
+
 
 def _load_from_json(path: Path) -> Dict[str, Any]:
     """Load a JSON file as a dict using UTF-8 encoding."""
@@ -74,13 +85,21 @@ def _load_from_json(path: Path) -> Dict[str, Any]:
 
 
 def _load_from_yaml(path: Path) -> Dict[str, Any]:
-    """Load a YAML file as a dict, trying UTF-8 then UTF-8 with BOM fallback."""
+    """
+    Load a YAML file as a dict.
+    - ابتدا فایل را به صورت متن می‌خوانیم،
+    - سپس ${VAR} را از env جایگزین می‌کنیم،
+    - بعد safe_load می‌کنیم.
+    """
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
+            text = f.read()
     except UnicodeDecodeError:
         with open(path, "r", encoding="utf-8-sig") as f:
-            return yaml.safe_load(f)
+            text = f.read()
+
+    text = _sub_env_vars(text)
+    return yaml.safe_load(text)
 
 
 def _detect_file_type_and_load(path: Path) -> Dict[str, Any]:
@@ -88,10 +107,12 @@ def _detect_file_type_and_load(path: Path) -> Dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Config file not found: {path}")
 
-    if path.suffix == ".json":
+    suffix = path.suffix.lower()
+    if suffix == ".json":
         return _load_from_json(path)
-    if path.suffix in (".yaml", ".yml"):
+    if suffix in (".yaml", ".yml"):
         return _load_from_yaml(path)
+
     raise ValueError(f"Unsupported config file type: {path.suffix}")
 
 
@@ -104,35 +125,34 @@ def load_config(config_path: Optional[str] = None) -> AppConfig:
     Load and validate application configuration.
 
     Args:
-        config_path: Optional path to a JSON/YAML config file. If not provided,
-                     falls back to env var `NEXUSA_CONFIG_PATH` or `config.yaml`.
+        config_path: مسیر اختیاری فایل YAML/JSON. اگر ندهید:
+                     1) از env: NEXUSA_CONFIG_PATH
+                     2) پیش‌فرض: ./config.yaml
 
     Returns:
-        AppConfig: Parsed and validated configuration object.
+        AppConfig (typed)
 
     Raises:
-        FileNotFoundError: If the config path does not exist.
-        ValueError: If the file type is unsupported.
-        ValidationError: If the loaded config does not match the schema.
+        FileNotFoundError / ValueError / ValidationError
     """
-    # Default: config.yaml next to the working directory unless overridden
     config_path = config_path or os.environ.get("NEXUSA_CONFIG_PATH", "config.yaml")
     path = Path(config_path).expanduser().resolve()
 
-    raw_config = _detect_file_type_and_load(path)  # must return a dict
+    raw_config = _detect_file_type_and_load(path)
 
     try:
         cfg = AppConfig(**raw_config)
     except ValidationError as e:
         log.error("Invalid configuration format at %s", path)
+        # لاگِ جزئیات اعتبارسنجی به صورت JSON مرتب
         try:
             log.error("Validation details:\n%s", e.json(indent=2))
         except TypeError:
             log.error("Validation details:\n%s", e.json())
         raise
 
+    # اگر حالت debug روشن است، دامپ کانفیگ را در سطح DEBUG لاگ کن
     if getattr(cfg, "debug", False):
-        # v2: model_dump / v1: dict
         dump = cfg.model_dump() if hasattr(cfg, "model_dump") else cfg.dict()
         log.info("Config loaded from %s", path)
         log.debug("AppConfig dump:\n%s", pformat(dump, indent=2))

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEXUSA • Realtime Preview Widget</title>
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #0f1624;
+      --muted: #9fb1d1;
+      --text: #e8eefc;
+      --accent: #5ef1b6;
+      --accent-2: #6ab0ff;
+      --border: #1d2636;
+      --danger: #ff6b6b;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 14px;
+    }
+    @media (prefers-color-scheme: light) {
+      :root { --bg:#f6f9ff; --panel:#ffffff; --text:#0b0f17; --muted:#4b5b77; --border:#e6ecf7; --shadow: 0 10px 30px rgba(8,22,44,.08); }
+    }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: radial-gradient(1200px 600px at 90% -10%, rgba(106,176,255,.15), transparent), var(--bg);
+      color: var(--text); font: 14px/1.5 system-ui, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      display: grid; place-items: center;
+    }
+    .wrap { width: min(1100px, 92vw); }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0)) , var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .head { display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--border); }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; padding:4px 8px; border:1px solid var(--border); border-radius:999px; color:var(--muted); font-size:12px; }
+    .title { margin:0; font-size:18px; font-weight:800; letter-spacing: .2px; }
+
+    .toolbar { display:flex; gap:8px; margin-left:auto; }
+    .btn, .select { appearance:none; border:1px solid var(--border); background: rgba(255,255,255,.03); color:var(--text); border-radius:10px; padding:8px 10px; font-weight:600; cursor:pointer; }
+    .btn[aria-pressed="true"] { background: rgba(94, 241, 182, .16); border-color: rgba(94,241,182,.45); }
+    .btn:hover { background: rgba(255,255,255,.06); }
+    .select { padding-right:28px; position:relative; }
+    .select:after { content:"▾"; position:absolute; right:10px; color:var(--muted); }
+
+    .grid { display:grid; grid-template-columns: 1.2fr .8fr; gap:16px; padding:16px; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel { background: linear-gradient(180deg, rgba(255,255,255,.02), transparent), var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; }
+    .kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-bottom:10px; }
+    @media (max-width: 640px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+    .kpi { background: rgba(255,255,255,.03); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
+    .kpi .v { font-size:18px; font-weight:800; color:var(--accent); }
+    .kpi .l { font-size:11px; color:var(--muted); }
+
+    .canvas-wrap { position:relative; height: 420px; }
+    canvas { position:absolute; inset:0; width:100%; height:100%; }
+    .price { position:absolute; top:10px; right:12px; font-weight:800; font-variant-numeric: tabular-nums; background: rgba(0,0,0,.35); border:1px solid var(--border); padding:6px 8px; border-radius:10px; }
+    .legend { display:flex; gap:10px; align-items:center; color:var(--muted); font-size:12px; margin-top:8px; }
+    .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+
+    .feed { display:grid; gap:8px; max-height: 456px; overflow:auto; }
+    .event { display:flex; gap:10px; align-items:flex-start; padding:10px; background: rgba(255,255,255,.03); border:1px solid var(--border); border-radius:10px; }
+    .event .tag { font-size:11px; padding:3px 6px; border:1px solid var(--border); border-radius:999px; color:var(--muted); }
+    .event .msg { font-size:13px; }
+
+    .foot { padding:10px 14px; border-top:1px solid var(--border); color:var(--muted); font-size:12px; display:flex; justify-content:space-between; align-items:center; }
+    .ok { color: var(--accent); }
+    .bad { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="wrap card" role="region" aria-label="NEXUSA realtime preview">
+    <div class="head">
+      <span class="eyebrow" aria-hidden>⚡ Realtime • Secure • Read‑only</span>
+      <h1 class="title">NEXUSA Preview</h1>
+      <div class="toolbar" role="toolbar" aria-label="Widget controls">
+        <select id="symbol" class="select" aria-label="Symbol">
+          <option value="BTCUSDT">BTCUSDT</option>
+          <option value="ETHUSDT">ETHUSDT</option>
+          <option value="SOLUSDT">SOLUSDT</option>
+        </select>
+        <select id="tf" class="select" aria-label="Timeframe">
+          <option value="1m">1m</option>
+          <option value="5m">5m</option>
+          <option value="1h" selected>1h</option>
+          <option value="4h">4h</option>
+        </select>
+        <button id="pause" class="btn" aria-pressed="false">Pause</button>
+        <button id="theme" class="btn" aria-pressed="false" title="Toggle theme">Theme</button>
+      </div>
+    </div>
+
+    <div class="grid" id="grid">
+      <section class="panel" aria-label="Chart">
+        <div class="kpis" aria-hidden>
+          <div class="kpi"><div class="v" id="k-open">—</div><div class="l">Open</div></div>
+          <div class="kpi"><div class="v" id="k-high">—</div><div class="l">High</div></div>
+          <div class="kpi"><div class="v" id="k-low">—</div><div class="l">Low</div></div>
+          <div class="kpi"><div class="v" id="k-vol">—</div><div class="l">Vol</div></div>
+        </div>
+        <div class="canvas-wrap">
+          <div class="price" id="price">—</div>
+          <canvas id="gridLayer" aria-hidden></canvas>
+          <canvas id="lineLayer" aria-label="Price line"></canvas>
+          <canvas id="cursorLayer" aria-hidden></canvas>
+        </div>
+        <div class="legend" aria-hidden>
+          <span class="dot" style="background: var(--accent)"></span> Price
+          <span class="dot" style="background: var(--accent-2)"></span> Signal
+        </div>
+      </section>
+
+      <aside class="panel" aria-label="Signals & events">
+        <div class="feed" id="feed" aria-live="polite"></div>
+      </aside>
+    </div>
+
+    <div class="foot" role="contentinfo">
+      <span id="status" class="ok">Live (simulated)</span>
+      <span>© NEXUSA</span>
+    </div>
+  </div>
+
+  <script>
+    // Utilities
+    const fmt = (n) => n.toLocaleString(undefined, { maximumFractionDigits: 2 })
+    const rnd = (min, max) => Math.random() * (max - min) + min
+
+    // State
+    const state = {
+      running: true,
+      dark: true,
+      points: [], // {t, p}
+      signals: [], // {t, type, text}
+      maxPoints: 300,
+    }
+
+    // Elements
+    const $ = (id) => document.getElementById(id)
+    const gridLayer = $("gridLayer")
+    const lineLayer = $("lineLayer")
+    const cursorLayer = $("cursorLayer")
+    const priceEl = $("price")
+    const feedEl = $("feed")
+    const kOpen = $("k-open"), kHigh = $("k-high"), kLow = $("k-low"), kVol = $("k-vol")
+
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1))
+
+    function resize() {
+      const rect = lineLayer.getBoundingClientRect()
+      ;[gridLayer, lineLayer, cursorLayer].forEach(c => {
+        c.width = Math.floor(rect.width * dpr);
+        c.height = Math.floor(rect.height * dpr);
+        c.style.width = rect.width + 'px';
+        c.style.height = rect.height + 'px';
+      })
+      drawAll()
+    }
+    window.addEventListener('resize', resize, { passive: true })
+
+    // Data simulation
+    let t = Date.now()
+    let price = 68000 + rnd(-200, 200)
+    function tick() {
+      if (!state.running) return
+      t += 1000 * 15 // 15s candle for preview
+      price += rnd(-50, 50)
+      const p = Math.max(100, price)
+      state.points.push({ t, p, o:p - rnd(-15, 15), h:p + rnd(0, 40), l:p - rnd(0, 40), v: Math.floor(rnd(20, 120)) })
+      if (state.points.length > state.maxPoints) state.points.shift()
+
+      // occasional demo signal
+      if (Math.random() < 0.12) {
+        const type = Math.random() < 0.5 ? 'LONG' : 'SHORT'
+        const color = type === 'LONG' ? 'var(--accent)' : 'var(--danger)'
+        state.signals.push({ t, type, text: `${type} • ${fmt(p)}` })
+        const item = document.createElement('div')
+        item.className = 'event'
+        item.innerHTML = `<span class="tag" style="border-color:${color};color:${color}">${type}</span><div class="msg">${new Date(t).toLocaleTimeString()} — ${type} @ ${fmt(p)} on BTCUSDT</div>`
+        feedEl.prepend(item)
+        if (feedEl.children.length > 32) feedEl.removeChild(feedEl.lastChild)
+      }
+
+      // KPIs and price
+      priceEl.textContent = fmt(p)
+      const slice = state.points.slice(-60)
+      const highs = slice.map(x=>x.h), lows = slice.map(x=>x.l)
+      kOpen.textContent = fmt(slice[0]?.o ?? p)
+      kHigh.textContent = fmt(Math.max(...highs))
+      kLow.textContent = fmt(Math.min(...lows))
+      kVol.textContent = fmt(Math.round(slice.reduce((a,b)=>a+b.v,0)))
+
+      drawAll()
+    }
+
+    // Drawing
+    function drawAll() { drawGrid(); drawLine(); clearCursor(); }
+
+    function drawGrid() {
+      const ctx = gridLayer.getContext('2d')
+      const { width:w, height:h } = gridLayer
+      ctx.clearRect(0,0,w,h)
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border')
+      ctx.lineWidth = 1
+      const rows = 6, cols = 10
+      for (let i=1;i<rows;i++){ const y = (h/rows)*i; ctx.globalAlpha=.7; line(ctx, 0,y, w,y)}
+      for (let j=1;j<cols;j++){ const x = (w/cols)*j; ctx.globalAlpha=.4; line(ctx, x,0, x,h)}
+      ctx.globalAlpha = 1
+    }
+
+    function line(ctx, x1,y1, x2,y2) { ctx.beginPath(); ctx.moveTo(x1+.5,y1+.5); ctx.lineTo(x2+.5,y2+.5); ctx.stroke() }
+
+    function drawLine() {
+      const ctx = lineLayer.getContext('2d')
+      const { width:w, height:h } = lineLayer
+      ctx.clearRect(0,0,w,h)
+      if (!state.points.length) return
+
+      const pts = state.points
+      const min = Math.min(...pts.map(p=>p.l))
+      const max = Math.max(...pts.map(p=>p.h))
+      const pad = (max-min)*0.1
+      const yMin = min - pad, yMax = max + pad
+
+      const xStep = w / Math.max(pts.length-1, 1)
+      ctx.lineWidth = 2*dpr
+
+      // Price line
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent')
+      ctx.beginPath()
+      pts.forEach((pt,i)=>{
+        const x = i*xStep
+        const y = h - ((pt.p - yMin)/(yMax - yMin))*h
+        i? ctx.lineTo(x,y) : ctx.moveTo(x,y)
+      })
+      ctx.stroke()
+
+      // Signal overlay (small markers)
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-2')
+      pts.forEach((pt,i)=>{
+        if (i%37===0) ctx.fillRect(i*xStep-2, h - ((pt.p - yMin)/(yMax - yMin))*h -2, 4, 4)
+      })
+    }
+
+    function clearCursor(){ const c = cursorLayer.getContext('2d'); c.clearRect(0,0,cursorLayer.width,cursorLayer.height) }
+
+    cursorLayer.addEventListener('mousemove', (e)=>{
+      const rect = cursorLayer.getBoundingClientRect()
+      const x = (e.clientX - rect.left) * dpr
+      const y = (e.clientY - rect.top) * dpr
+      const c = cursorLayer.getContext('2d')
+      c.clearRect(0,0,cursorLayer.width,cursorLayer.height)
+      c.strokeStyle = 'rgba(255,255,255,.25)'; c.lineWidth = 1
+      line(c, x, 0, x, cursorLayer.height)
+      line(c, 0, y, cursorLayer.width, y)
+    })
+    cursorLayer.addEventListener('mouseleave', clearCursor)
+
+    // Controls
+    $("pause").addEventListener('click', (e)=>{ state.running=!state.running; e.currentTarget.setAttribute('aria-pressed', String(!state.running)); })
+    $("theme").addEventListener('click', (e)=>{
+      state.dark = !state.dark
+      document.documentElement.style.setProperty('--bg', state.dark? '#0b0f17':'#f6f9ff')
+      document.documentElement.style.setProperty('--panel', state.dark? '#0f1624':'#ffffff')
+      document.documentElement.style.setProperty('--text', state.dark? '#e8eefc':'#0b0f17')
+      document.documentElement.style.setProperty('--muted', state.dark? '#9fb1d1':'#4b5b77')
+      document.documentElement.style.setProperty('--border', state.dark? '#1d2636':'#e6ecf7')
+      e.currentTarget.setAttribute('aria-pressed', String(!state.dark))
+      drawAll()
+    })
+
+    // Boot
+    resize()
+    const timer = setInterval(()=>{ tick() }, 900)
+    window.addEventListener('beforeunload', ()=> clearInterval(timer))
+
+    // PostMessage bridge (optional for host page)
+    window.addEventListener('message', (ev)=>{
+      try {
+        const { type, payload } = ev.data || {}
+        if (type === 'nexusa:set') {
+          if (payload.symbol) document.getElementById('symbol').value = payload.symbol
+          if (payload.tf) document.getElementById('tf').value = payload.tf
+        }
+        if (type === 'nexusa:pause') { state.running = !!payload; document.getElementById('pause').setAttribute('aria-pressed', String(!payload)) }
+      } catch {}
+    })
+  </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "slug": "fundamental",
+  "title": "Fundamental Analysis (Crypto)",
+  "tagline": "From tokenomics to network effects — master the fundamentals.",
+  "level": "Beginner → Advanced",
+  "durationH": 5,
+  "prerequisites": ["Crypto basics", "Market microstructure (basic)"],
+  "objectives": [
+    "Understand intrinsic vs. relative valuation in crypto",
+    "Analyze token supply, emissions, and utility (tokenomics)"
+  ],
+  "resources": [
+    { "label": "Glassnode Academy", "href": "https://academy.glassnode.com" }
+  ],
+  "quiz": { "id": "fundamentals-basics", "title": "Fundamentals — Quiz" },
+  "project": { "id": "fundamentals-case", "title": "Case Study: L2 vs. Alt-L1" },
+  "cover": "/images/courses/fundamental.jpg",
+  "modules": [
+    {
+      "id": "m1",
+      "title": "Foundations & Frameworks",
+      "summary": "Valuation principles, categories, and mental models.",
+      "lessons": [
+        { "id": "m1l1", "title": "Valuation in Crypto vs. Equity", "durationMin": 12 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Nexus-AITech icon">
+  <defs>
+    <linearGradient id="gradCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00E6FF"/>
+      <stop offset="100%" stop-color="#2878FF"/>
+    </linearGradient>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12.42" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Hexagon border -->
+  <polyline points="460.75,256.00 358.38,433.32 153.63,433.32 51.25,256.00 153.62,78.68 358.38,78.68" fill="none" stroke="url(#gradCyan)" stroke-width="28.00" stroke-linejoin="round" filter="url(#softGlow)"/>
+
+  <!-- Rails -->
+  <g stroke="#2878FF" stroke-width="23.00" stroke-linecap="round" filter="url(#softGlow)">
+    <line x1="143.50" y1="143.50" x2="143.50" y2="368.50"/>
+    <line x1="368.50" y1="143.50" x2="368.50" y2="368.50"/>
+  </g>
+
+  <!-- Diagonal -->
+  <line x1="143.50" y1="368.50" x2="368.50" y2="143.50" stroke="url(#gradCyan)" stroke-width="23.00" stroke-linecap="round" filter="url(#softGlow)"/>
+
+  <!-- Crossbar -->
+  <line x1="143.50" y1="256.00" x2="368.50" y2="256.00" stroke="#FFFFFF" stroke-width="12.65" stroke-linecap="round" filter="url(#softGlow)"/>
+
+  <!-- Nodes -->
+  <g filter="url(#softGlow)">
+    <defs>
+      <radialGradient id="nodeGrad" cx="50%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="60%" stop-color="#00E6FF"/>
+        <stop offset="100%" stop-color="#00E6FF"/>
+      </radialGradient>
+    </defs>
+    <!-- Left rail nodes -->
+    <circle cx="143.50" cy="143.50" r="14.25" fill="url(#nodeGrad)"/>
+    <circle cx="143.50" cy="256.00" r="14.25" fill="url(#nodeGrad)"/>
+    <circle cx="143.50" cy="368.50" r="14.25" fill="url(#nodeGrad)"/>
+    <!-- Right rail nodes -->
+    <circle cx="368.50" cy="143.50" r="14.25" fill="url(#nodeGrad)"/>
+    <circle cx="368.50" cy="256.00" r="14.25" fill="url(#nodeGrad)"/>
+    <circle cx="368.50" cy="368.50" r="14.25" fill="url(#nodeGrad)"/>
+  </g>
+</svg>

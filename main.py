@@ -14,24 +14,92 @@ import signal
 import sys
 import uvicorn
 from dataclasses import dataclass
+from pydantic import BaseModel
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter, WebSocket, WebSocketDisconnect
 from typing import Any, Dict, List, Optional, Tuple, Callable
 from backtesting.backtesting_engine import evaluate
 from orchestration.fastapi_server import app as orchestration_app
 from dotenv import load_dotenv
+from ws_fetcher import WSConfig, WSBackoff, Subscription, stream_market_data
+from orchestration.ws_hub import hub
+from ingestion.rest_fetcher import fetch_live_stream
+
 load_dotenv(".env.production")
-load_dotenv(".env", override=True)  # این خط مهمه
-# load_dotenv(".env", override=True)
+load_dotenv(".env", override=True)
 
 # ===== App (ASGI) =====
 app = FastAPI(title="NEXUSA Unified API", version="1.0.0")
+app = orchestration_app
+clients = set()
+
+@app.websocket("/ws/signals")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    clients.add(websocket)
+    try:
+        while True:
+            await asyncio.sleep(1)  # زنده نگه داشتن کانکشن
+    except WebSocketDisconnect:
+        clients.remove(websocket)
+
+
+async def broadcast(message: dict):
+    """ ارسال پیام به همه کلاینت‌ها """
+    living = set()
+    for ws in clients:
+        try:
+            await ws.send_json(message)
+            living.add(ws)
+        except Exception:
+            pass
+    clients.clear()
+    clients.update(living)
+
+
+# اجرای استریم REST (داده‌های OHLCV)
+@app.on_event("startup")
+async def start_fetchers():
+    asyncio.create_task(fetch_live_stream(broadcast))
+
+
+# 🚫 موقتاً غیرفعال شد چون اتصال مستقیم WS به صرافی مشکل دارد
+# @app.on_event("startup")
+# async def start_ws_streamer() -> None:
+#     async def _run():
+#         ws_cfg = WSConfig(
+#             ping_interval=20, read_timeout=30, max_retries=0,
+#             backoff=WSBackoff(initial_sec=1.0, max_sec=30.0, factor=1.8),
+#             subscribe_batch_size=50, max_queue=10000,
+#         )
+#         # TODO: این لیست را از config/DB بخوان؛ فعلاً نمونه:
+#         subs: List[Subscription] = [
+#             Subscription(exchange="binance", symbol="BTCUSDT", stream="kline", tf="1m"),
+#             Subscription(exchange="binance", symbol="BTCUSDT", stream="trade"),
+#         ]
+#         async for ev in stream_market_data(subs, ws_cfg):
+#             await hub.publish(ev)
+#     asyncio.create_task(_run())
+
+
+# پل ارتباطی hub → websocket (فعلاً بی‌اثر چون start_ws_streamer غیرفعال است)
+@app.on_event("startup")
+async def bridge_hub_to_ws():
+    async def _bridge():
+        q = await hub.register()
+        try:
+            while True:
+                msg = await q.get()
+                await broadcast(msg)
+        finally:
+            await hub.unregister(q)
+    asyncio.create_task(_bridge())
+
 
 @app.get("/health", tags=["system"])
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-# Ensure project root on path
 sys.path.append(str(Path(__file__).resolve().parent))
 
 # ========= NEXUSA recommended direct imports (guarded) =========
@@ -593,6 +661,30 @@ def _setup_signals(loop: asyncio.AbstractEventLoop, log: logging.Logger) -> asyn
 
     return stop
 
+try:
+    from storage.tsdb_reader import get_signals
+except ImportError:
+    get_signals = None  # یا می‌تونیم یه پیام خطا بدیم
+
+router = APIRouter()
+
+class SignalOut(BaseModel):
+    symbol: str
+    tf: str
+    direction: str
+    score: float
+    created_at: str
+
+@router.get("/api/signals", response_model=List[SignalOut])
+def fetch_signals(symbol: str = "BTCUSDT", tf: str = "1h", limit: int = 10):
+    if not get_signals:
+        return []
+    df = get_signals(symbol=symbol, tf=tf, limit=limit)
+    return df.to_dict(orient="records")
+
+# Mount the new router
+app.include_router(router, tags=["signals"])
+
 def main() -> None:
     """Main CLI entrypoint: parse args, run pipeline, and log a summary JSON."""
     _load_env()
@@ -637,7 +729,5 @@ if __name__ == "__main__":
     import multiprocessing
 
     multiprocessing.freeze_support()  # Needed on Windows
-    # If you need pre-server work, do it in main()
-    # main()
 
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

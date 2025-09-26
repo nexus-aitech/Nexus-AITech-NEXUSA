@@ -5,27 +5,31 @@ import socket
 import asyncio
 import logging
 from typing import Any, Optional, List
-from fastapi import APIRouter
-from fastapi import FastAPI, HTTPException, Query
+
+from fastapi import FastAPI, HTTPException, Query, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-from core.config.config import settings
 from starlette.responses import JSONResponse
+from core.config.config import settings
 
 log = logging.getLogger("api")
 
+# -------------------------------------------------
+# FastAPI Application
+# -------------------------------------------------
 app = FastAPI(
     title="NEXUSA API",
     version="1.0.0",
     description="Real-time signal/feature API for crypto market intelligence",
 )
 
-# ---- Secure CORS (replace the existing add_middleware block) ----
-
+# -------------------------------------------------
+# Middleware (CORS)
+# -------------------------------------------------
 if settings.env == "dev":
-    _raw = os.getenv("FRONTEND_ORIGINS", "http://localhost:3000")
+    _raw = os.getenv("FRONTEND_ORIGINS", "http://localhost:3001")
     ALLOW_ORIGINS = [o.strip() for o in _raw.split(",") if o.strip()]
 else:
     _raw = os.getenv("FRONTEND_ORIGINS", "")
@@ -40,71 +44,65 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
-# ---------------------------------------------------------------
 
-
+# -------------------------------------------------
+# Models
+# -------------------------------------------------
 class FeatureResponse(BaseModel):
-    """Response model for a single symbol/timeframe feature payload."""
     symbol: str
     tf: str
     features: dict
 
-
+# -------------------------------------------------
+# Basic Routes
+# -------------------------------------------------
 @app.get("/healthz", tags=["infra"])
 def healthz() -> dict[str, str]:
-    """Liveness/health endpoint."""
     return {"status": "ok", "env": settings.env}
 
 @app.get("/health", tags=["infra"])
 def health_alias() -> dict[str, str]:
-    """Alias for health checks expecting /health."""
     return {"status": "ok", "env": settings.env}
+
+@app.head("/healthz", tags=["infra"])
+async def healthz_head():
+    return PlainTextResponse("", status_code=200)
+
+@app.head("/health", tags=["infra"])
+async def health_head():
+    return PlainTextResponse("", status_code=200)
 
 @app.get("/metrics", tags=["infra"])
 def metrics() -> PlainTextResponse:
-    """Prometheus metrics endpoint."""
     data = generate_latest()
     return PlainTextResponse(data.decode("utf-8"), media_type=CONTENT_TYPE_LATEST)
 
+@app.get("/", tags=["meta"])
+def root() -> dict[str, Any]:
+    return {
+        "message": "Welcome to NEXUSA API",
+        "endpoints": ["/healthz", "/metrics", "/features/{symbol}/{tf}", "/system/health"],
+    }
 
+# -------------------------------------------------
+# Feature Routes
+# -------------------------------------------------
 @app.get("/features/{symbol}/{tf}", response_model=FeatureResponse, tags=["features"])
-def get_feature(
-    symbol: str,
-    tf: str,
-    keys: Optional[List[str]] = Query(default=None, description="Optional feature keys to include"),
-) -> FeatureResponse:
-    """Fetch the latest computed features for a given symbol and timeframe.
-
-    To satisfy layering constraints, import the feature-store reader lazily.
-    """
-    # Lazy import to avoid orchestration -> features layer violation at module import time.
-    from features.feature_store import read_latest_feature  # type: ignore
-
+def get_feature(symbol: str, tf: str, keys: Optional[List[str]] = Query(default=None)):
+    from features.feature_store import read_latest_feature  # lazy import
     row = read_latest_feature(symbol, tf, keys)
     if not row:
         raise HTTPException(status_code=404, detail="No features found")
     return FeatureResponse(symbol=symbol, tf=tf, features=row)
 
-
-@app.get("/", tags=["meta"])
-def root() -> dict[str, Any]:
-    """API index with basic metadata and handy endpoints list."""
-    return {
-        "message": "Welcome to NEXUSA API",
-        "endpoints": ["/healthz", "/metrics", "/features/{symbol}/{tf}"],
-    }
-
+# -------------------------------------------------
+# System Router (checks Redis, Kafka, ClickHouse, MinIO)
+# -------------------------------------------------
 router = APIRouter()
-
-# زمان شروع اپ
 START_TIME = time.time()
 
-@router.get("/health", tags=["system"])
-async def healthcheck():
-    import os
-    import json
-    from typing import Any
-    from starlette.responses import JSONResponse
+@router.get("/system/health", tags=["system"])
+async def system_health():
     uptime = round(time.time() - START_TIME, 2)
 
     async def run_blocking(fn, *args, timeout: float = 2.0, **kwargs):
@@ -115,7 +113,7 @@ async def healthcheck():
 
     checks: dict[str, Any] = {}
 
-    # --- Redis ---
+    # Redis
     try:
         def _check_redis():
             import redis
@@ -126,7 +124,7 @@ async def healthcheck():
     except Exception as e:
         checks["redis"] = f"error: {e.__class__.__name__}"
 
-    # --- Kafka ---
+    # Kafka
     try:
         def _check_kafka():
             from kafka import KafkaProducer
@@ -149,13 +147,19 @@ async def healthcheck():
     except Exception as e:
         checks["kafka"] = f"error: {e.__class__.__name__}"
 
-    # --- ClickHouse ---
+    # ClickHouse
     try:
         def _check_clickhouse():
             from clickhouse_driver import Client
             host = os.getenv("CLICKHOUSE_HOST", "localhost")
             port = int(os.getenv("CLICKHOUSE_PORT", "9000"))
-            client = Client(host=host, port=port, connect_timeout=1, send_receive_timeout=1, settings={"max_execution_time": 1})
+            client = Client(
+                host=host,
+                port=port,
+                connect_timeout=1,
+                send_receive_timeout=1,
+                settings={"max_execution_time": 1},
+            )
             client.execute("SELECT 1")
             return True
         await run_blocking(_check_clickhouse, timeout=2.0)
@@ -163,7 +167,7 @@ async def healthcheck():
     except Exception as e:
         checks["clickhouse"] = f"error: {e.__class__.__name__}"
 
-    # --- S3 / MinIO ---
+    # S3 / MinIO
     try:
         def _check_s3():
             from botocore.config import Config as BotoConfig
@@ -176,7 +180,6 @@ async def healthcheck():
                 region_name=os.getenv("S3_REGION", "us-east-1"),
                 config=BotoConfig(connect_timeout=1, read_timeout=1, retries={"max_attempts": 0}),
             )
-            # fast call that requires auth but is cheap
             s3.list_buckets()
             return True
         await run_blocking(_check_s3, timeout=2.0)
@@ -197,14 +200,7 @@ async def healthcheck():
     }
     return JSONResponse(payload)
 
-# Support HEAD for health endpoints (useful for load balancers)
-@app.head("/healthz", tags=["infra"])
-async def healthz_head():
-    return PlainTextResponse("", status_code=200)
-
-@app.head("/health", tags=["system"])
-async def health_head():
-    return PlainTextResponse("", status_code=200)
-
-# mount router
+# -------------------------------------------------
+# Mount Router
+# -------------------------------------------------
 app.include_router(router)

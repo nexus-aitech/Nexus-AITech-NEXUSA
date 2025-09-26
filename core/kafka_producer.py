@@ -171,18 +171,22 @@ class KafkaProducerWrapper:
         tf = (key_fields or {}).get("tf")
         key = _hash_key(symbol, tf)
 
+        # --- داخل KafkaProducerWrapper.produce(...) جایگزینِ بلاک try کن ---
         send_ts_ns = time.time_ns()
         try:
-            self._producer.produce(
-                topic=topic,
-                key=key,
-                value=json.dumps(value, separators=(",", ":")).encode("utf-8"),
-                headers=[(k, str(v).encode("utf-8")) for k, v in (headers or {}).items()],
-                timestamp=timestamp_ms,
-                on_delivery=lambda err, msg: self._on_delivery(err, msg, send_ts_ns),
-            )
+            kwargs = {
+                "topic": topic,
+                "key": key,
+                "value": json.dumps(value, separators=(",", ":")).encode("utf-8"),
+                "headers": [(k, str(v).encode("utf-8")) for k, v in (headers or {}).items()],
+                "on_delivery": lambda err, msg: self._on_delivery(err, msg, send_ts_ns),
+            }
+            if timestamp_ms is not None:
+                kwargs["timestamp"] = int(timestamp_ms)
+
+            self._producer.produce(**kwargs)
+
         except Exception as e:
-            # Count drops on immediate client-side errors
             try:
                 dropped_msgs.labels(reason=str(e)).inc()
             except Exception:

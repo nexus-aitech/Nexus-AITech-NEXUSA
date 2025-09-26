@@ -178,23 +178,19 @@ class TTLPolicy:
         """
         return f"TTL {ts_col} + toIntervalDay({self.cold_days}) DELETE"
 
+    def compute_partition(symbol: str, tf: Optional[str], ts_ms: int) -> PartitionKey:
+        """Compute a UTC day partition from a millisecond timestamp."""
+        # Ensure UTC date from milliseconds
+        dt = _dt.datetime.utcfromtimestamp(ts_ms / 1000.0).date()
+        return PartitionKey(symbol=symbol, tf=tf, date=dt)
 
-def compute_partition(symbol: str, tf: Optional[str], ts_ms: int) -> PartitionKey:
-    """Compute a UTC day partition from a millisecond timestamp."""
-    # Ensure UTC date from milliseconds
-    dt = _dt.datetime.utcfromtimestamp(ts_ms / 1000.0).date()
-    return PartitionKey(symbol=symbol, tf=tf, date=dt)
+        # Default singleton registry + thin wrappers
+        registry = FileSchemaRegistry(root_dir="schemas")
 
+    def register(subject: str, schema: dict) -> int:
+        """Module-level helper: register `schema` under `subject` on the default registry."""
+        return registry.register(subject, schema)
 
-# Default singleton registry + thin wrappers
-registry = FileSchemaRegistry(root_dir="schemas")
-
-
-def register(subject: str, schema: dict) -> int:
-    """Module-level helper: register `schema` under `subject` on the default registry."""
-    return registry.register(subject, schema)
-
-
-def get(subject: str, version: int | None = None) -> dict:
-    """Module-level helper: fetch a schema (latest if `version` is None)."""
-    return registry.get(subject, version)
+    def get(subject: str, version: int | None = None) -> dict:
+        """Module-level helper: fetch a schema (latest if `version` is None)."""
+        return registry.get(subject, version)

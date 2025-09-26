@@ -1,26 +1,47 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [{ "name": "next" }],
-    "forceConsistentCasingInFileNames": true,
+    /* ========== Core Settings ========== */
+    "target": "ES2022",                      
+    "lib": ["dom", "dom.iterable", "esnext"], 
+    "module": "esnext",                      
+    "moduleResolution": "bundler",           
+    "jsx": "preserve",                       
+    "resolveJsonModule": true,               
+    "isolatedModules": true,                 
+    "noEmit": true,                          
 
-    "baseUrl": ".",
+    /* ========== Strictness ========== */
+    "strict": true,                          
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,                    
+
+    /* ========== Type Checking ========== */
+    "esModuleInterop": true,                 
+    "allowJs": false,                        
+    "incremental": true,                     
+
+    /* ========== Paths / Aliases ========== */
+    "baseUrl": ".",                          
     "paths": {
-      "@/*": ["./src/*", "./components/*", "./lib/*"]
-    }
+      "@/*": ["./src/*"]
+    },
+
+    /* ========== Next.js Plugin ========== */
+    "plugins": [{ "name": "next" }]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+
+  /* ========== Includes / Excludes ========== */
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".turbo",
+    ".next"
+  ]
 }

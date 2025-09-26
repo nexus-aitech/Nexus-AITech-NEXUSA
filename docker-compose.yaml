@@ -4,36 +4,56 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: nexusa-api
     image: nexusa/api:latest
     environment:
       APP_PORT: "8000"
+      APP_MODULE: "orchestration.fastapi_server:app"   # ← فقط یکی بمونه
       KAFKA_BOOTSTRAP: "redpanda:9092"
-      APP_MODULE: "orchestration.fastapi_server:app"
       HEALTH_PATH: "/health"
-
+      REDIS_URL: "redis://:009922333777313@redis:6379/0"
       CLICKHOUSE__HOST: "clickhouse"
       CLICKHOUSE__PORT: "9000"
-      CLICKHOUSE__USER: "default"
-      CLICKHOUSE__PASSWORD: ""
-      CLICKHOUSE__DATABASE: "default"
+      CLICKHOUSE__USER: "nexusa"
+      CLICKHOUSE__PASSWORD: "009922333777313"
+      CLICKHOUSE__DATABASE: "nexusa"
+      FRONTEND_ORIGINS: "http://localhost:3001,http://127.0.0.1:3001"
+      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+      S3_ENDPOINT: "http://minio:9000"
+      S3_BUCKET: nexusa
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY: nexusa
+      S3_SECRET_KEY: "009922333777313"
     ports:
       - "8000:8000"
     depends_on:
-      redis: { condition: service_healthy }
-      clickhouse: { condition: service_healthy }
-      minio: { condition: service_healthy }
-      redpanda: { condition: service_healthy }
+      redis:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+      ingestion:
+        condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "python - << 'PY'\nimport os,sys,urllib.request\nurl=f\"http://127.0.0.1:{os.getenv('APP_PORT','8000')}{os.getenv('HEALTH_PATH','/health')}\"\ntry:\n  s=urllib.request.urlopen(url,timeout=3).getcode()\n  sys.exit(0 if s==200 else 1)\nexcept Exception:\n  sys.exit(1)\nPY"]
+      test:
+        [
+          "CMD-SHELL",
+          "python - << 'PY'\nimport sys,urllib.request,os\nu='http://127.0.0.1:8000'+os.environ.get('HEALTH_PATH','/health')\ntry:\n  s=urllib.request.urlopen(u, timeout=5).getcode(); sys.exit(0 if s==200 else 1)\nexcept Exception:\n  sys.exit(1)\nPY"
+        ]
       interval: 15s
       timeout: 5s
       retries: 10
       start_period: 30s
     restart: unless-stopped
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - web
 
-  # ===== Frontend Webapp =====
   webapp:
     build:
       context: ./webapp
@@ -41,39 +61,39 @@ services:
     image: nexusa/webapp:latest
     environment:
       NODE_ENV: production
-      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      PORT: "3001"
     ports:
-      - "3000:3000"                                # اگر لازم نیست از بیرون، حذف کن
+      - "3001:3001"
     depends_on:
       api:
-        condition: service_healthy                 # دقیق‌تر از service_started
+        condition: service_healthy
     healthcheck:
-      # نیاز به نصب node در ایمیج خود وب‌app ندارد چون از خود node استفاده می‌کند
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000', r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""]
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${PORT:-3001}/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
-      start_period: 60s
+      start_period: 120s
     restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - web
 
-  # ===== ClickHouse =====
   clickhouse:
     image: clickhouse/clickhouse-server:24.8
     container_name: nexusa-clickhouse
     ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
+      nofile: { soft: 262144, hard: 262144 }
     environment:
       CLICKHOUSE_DB: default
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
     volumes:
       - clickdata:/var/lib/clickhouse
+      - /etc/localtime:/etc/localtime:ro
     ports:
-      - "8123:8123"   # HTTP
-      - "9005:9000"   # Native (host 9005 -> container 9000)
+      - "8123:8123"
+      - "9005:9000"
     healthcheck:
       test: ["CMD-SHELL", "clickhouse-client --host 127.0.0.1 --query 'SELECT 1' || exit 1"]
       interval: 10s
@@ -84,14 +104,14 @@ services:
     networks:
       - web
 
-  # ===== Redis =====
   redis:
     image: redis:7-alpine
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redisdata:/data
+      - /etc/localtime:/etc/localtime:ro
     ports:
-      - "6379:6379"                                # در صورت عدم نیاز از بیرون، حذف کن
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -101,7 +121,6 @@ services:
     networks:
       - web
 
-  # ===== Redpanda (Kafka-compatible) =====
   redpanda:
     image: redpandadata/redpanda:v24.2.9
     command:
@@ -113,13 +132,15 @@ services:
       - --reserve-memory=0M
       - --node-id=0
       - --check=false
-      - --kafka-addr=PLAINTEXT://0.0.0.0:9092
-      - --advertise-kafka-addr=PLAINTEXT://redpanda:9092   # برای مصرف داخل شبکه‌ی داکر کافی است
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:19092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092,OUTSIDE://localhost:19092
     ports:
-      - "9092:9092"   # Kafka API (اگر فقط داخل شبکه می‌خواهی، حذف کن)
-      - "9644:9644"   # Admin API
+      - "9092:9092"
+      - "19092:19092"
+      - "9644:9644"
     volumes:
       - redpanda_data:/var/lib/redpanda/data
+      - /etc/localtime:/etc/localtime:ro
     healthcheck:
       test: ["CMD-SHELL", "rpk cluster info -X brokers=localhost:9092 >/dev/null 2>&1 || exit 1"]
       interval: 15s
@@ -130,20 +151,19 @@ services:
     networks:
       - web
 
-  # ===== MinIO =====
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin123
+      MINIO_ROOT_PASSWORD: "009922333777313"
     volumes:
       - minio_data:/data
+      - /etc/localtime:/etc/localtime:ro
     ports:
-      - "9002:9000"  # S3 API (در صورت عدم نیاز از بیرون، حذف کن)
-      - "9001:9001"  # Console
+      - "9002:9000"
+      - "9001:9001"
     healthcheck:
-      # از endpoint سلامت داخلی MinIO استفاده می‌کنیم؛ mc داخل این ایمیج وجود ندارد
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9000/minio/health/live || exit 1"]
       interval: 10s
       timeout: 5s
@@ -153,7 +173,6 @@ services:
     networks:
       - web
 
-  # ===== MinIO Client (init bucket/policy) =====
   minio-mc:
     image: minio/mc:latest
     depends_on:
@@ -161,19 +180,17 @@ services:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+      mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
       mc mb -p local/mlflow || true &&
-      # اگر نمی‌خواهی public باشد، خط زیر را حذف کن یا به 'mc anonymous set none local/mlflow' تغییر بده
-      mc policy set public local/mlflow ||
+      mc anonymous set public local/mlflow ||
       exit 0
       "
     environment:
       MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin123
+      MINIO_ROOT_PASSWORD: "009922333777313"
     networks:
       - web
 
-  # ===== MLflow (با MinIO به‌عنوان S3) =====
   mlflow:
     image: ghcr.io/mlflow/mlflow
     command: >
@@ -184,25 +201,56 @@ services:
       --default-artifact-root s3://mlflow/
     environment:
       MLFLOW_S3_ENDPOINT_URL: http://minio:9000
-      AWS_ACCESS_KEY_ID: minioadmin
-      AWS_SECRET_ACCESS_KEY: minioadmin123
+      AWS_ACCESS_KEY_ID: nexusa
+      AWS_SECRET_ACCESS_KEY: "009922333777313"
       AWS_DEFAULT_REGION: us-east-1
     volumes:
       - mlflow_data:/mlflow
+      - /etc/localtime:/etc/localtime:ro
     depends_on:
       minio:
         condition: service_healthy
       minio-mc:
         condition: service_started
     ports:
-      - "5000:5000"                                # UI اگر از بیرون لازم نیست، حذف کن
+      - "5000:5000"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5000/ || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "python - << 'PY'\nimport sys,urllib.request\ntry:\n  s=urllib.request.urlopen('http://127.0.0.1:5000/', timeout=5).getcode(); sys.exit(0 if s==200 else 1)\nexcept Exception:\n  sys.exit(1)\nPY"
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
     restart: unless-stopped
+    networks:
+      - web
+
+  ingestion:
+    build:
+      context: .
+      dockerfile: ingestion/Dockerfile
+    image: nexusa/ingestion:latest
+    command: python -m ingestion.rest_fetcher
+    environment:
+      KAFKA_BOOTSTRAP: "redpanda:9092"
+      REDIS_URL: "redis://:009922333777313@redis:6379/0"
+      CLICKHOUSE__HOST: "clickhouse"
+      CLICKHOUSE__PORT: "9000"
+      CLICKHOUSE__USER: "nexusa"
+      CLICKHOUSE__PASSWORD: "009922333777313"
+      CLICKHOUSE__DATABASE: "nexusa"
+    depends_on:
+      redpanda: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      clickhouse: { condition: service_healthy }
+    restart: unless-stopped
+    volumes:
+      - ./ingestion:/app/ingestion
+      - ./core:/app/core
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - web
 

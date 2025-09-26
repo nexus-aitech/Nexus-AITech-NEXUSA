@@ -7,9 +7,13 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.1",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.3.0",
     "@upstash/redis": "^1.35.3",
     "argon2": "^0.44.0",
+    "ccxt": "^4.5.5",
     "libphonenumber-js": "^1.12.17",
-    "lucide-react": "^0.544.0"
+    "lucide-react": "^0.544.0",
+    "three": "^0.180.0"
   }
 }

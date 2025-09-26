@@ -2,4 +2,3 @@
 
 This docstring satisfies linters without altering runtime behavior.
 """
-__init__.py

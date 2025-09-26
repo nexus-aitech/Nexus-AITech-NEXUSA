@@ -1,3 +1,4 @@
+"use client";
 // webapp/src/components/sections/Feedback.tsx
 // یک کامپوننت بازخورد در سطح حرفه‌ای و جهانی — بدون وابستگی خارجی
 // قابلیت‌ها: اعتبارسنجی سمت کلاینت، محدودیت ارسال، Honeypot ضداسپم،
@@ -349,3 +350,4 @@ async function safeJson(res: Response) {
     return null;
   }
 }
+

@@ -1,0 +1,10 @@
+declare module "remark-gfm";
+declare module "remark-math";
+declare module "remark-rehype";
+declare module "rehype-slug";
+declare module "rehype-autolink-headings";
+declare module "rehype-external-links";
+declare module "rehype-sanitize";
+declare module "rehype-highlight";
+declare module "rehype-stringify";
+declare module "rehype-katex";

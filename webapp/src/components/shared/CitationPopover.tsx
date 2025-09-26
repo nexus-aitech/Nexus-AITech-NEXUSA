@@ -1,3 +1,4 @@
+"use client";
 // webapp/src/components/shared/CitationPopover.tsx (Pro)
 // طراحی پیشرفته، دسترس‌پذیر و قابل‌گسترش برای نمایش منابع
 // بدون وابستگی به کتابخانهٔ UI خارجی (فقط React + Tailwind)
@@ -401,3 +402,4 @@ function Dialog({ children, onClose }: { children: React.ReactNode; onClose: () 
     </div>
   );
 }
+

@@ -1,1 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.042" timestamp="2025-09-07T12:23:48.284407" hostname="Elias"><testcase classname="tests.test_smoke" name="test_smoke" time="0.001" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="1.773" timestamp="2025-09-13T21:08:06.092874" hostname="Elias"><testcase classname="" name="services.content.tests.test_content" time="0.000"><error message="collection failure">services\content\tests\test_content.py:5: in &lt;module&gt;
+    from services.content.app import app
+services\content\app.py:10: in &lt;module&gt;
+    from .repo import init_db
+services\content\repo.py:12: in &lt;module&gt;
+    s = get_settings()
+packages\common\config.py:44: in get_settings
+    return Settings()
+C:\Users\elias\AppData\Local\Programs\Python\Python311\Lib\site-packages\pydantic_settings\main.py:152: in __init__
+    super().__init__(
+E   pydantic_core._pydantic_core.ValidationError: 9 validation errors for Settings
+E   ENV
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing
+E   POSTGRES_DSN
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing
+E   KAFKA_BOOTSTRAP
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing
+E   NATS_URL
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing
+E   VECTOR_DB_URL
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing
+E   JWT_PUBLIC_KEY
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing
+E   OIDC_ISSUER
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing
+E   OIDC_AUDIENCE
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing
+E   CLICKHOUSE_DSN
+E     Field required [type=missing, input_value={'REDIS_URL': 'redis://:0..._llm_reporting': 'true'}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.11/v/missing</error></testcase></testsuite></testsuites>

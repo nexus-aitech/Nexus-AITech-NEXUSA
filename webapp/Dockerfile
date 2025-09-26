@@ -1,31 +1,39 @@
-# ---------- Build stage ----------
-FROM node:20-alpine AS build
+# ===== build stage =====
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
-# فقط package*.json کپی کن برای cache درست
+# نصب dependency ها (با cache بهتر)
 COPY package*.json ./
+RUN npm install
 
-# نصب تمیز
-RUN npm ci
-
-# سورس رو کپی کن
+# کپی کل سورس
 COPY . .
 
-# بیلد Next.js
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Build پروژه
 RUN npm run build
 
-# ---------- Run stage ----------
-FROM node:20-alpine AS run
+
+# ===== runtime stage =====
+FROM node:18-alpine AS runtime
 
 WORKDIR /app
 ENV NODE_ENV=production
 
-# فایل‌های لازم برای runtime
-COPY --from=build /app/public ./public
-COPY --from=build /app/.next/standalone ./
-COPY --from=build /app/.next/static ./.next/static
+# نیازهای سیستمی برای Prisma + Node
+RUN apk add --no-cache openssl bash
 
-EXPOSE 3000
+# فقط سورس نهایی + node_modules production
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
 
-CMD ["node", "server.js"]
+# حذف devDependencies
+RUN npm prune --production
+
+EXPOSE 8000
+CMD ["node", "dist/index.js"]

@@ -924,13 +924,13 @@ class BingxAdapter(BaseAdapter):
 # Adapter registry
 # -------------------------------
 ADAPTERS: Dict[str, Callable[[], BaseAdapter]] = {
-    "an-exchange": BinanceAdapter,
-    "an-exchange": BybitAdapter,
-    "an-exchange": OKXAdapter,
-    "an-exchange": KuCoinAdapter,
-    "an-exchange": BitgetAdapter,
-    "an-exchange": CoinexAdapter,
-    "an-exchange": BingxAdapter,
+    "binance": BinanceAdapter,
+    "bybit": BybitAdapter,
+    "okx": OKXAdapter,
+    "kucoin": KuCoinAdapter,
+    "bitget": BitgetAdapter,
+    "coinex": CoinexAdapter,
+    "bingx": BingxAdapter,
 }
 
 def get_adapter(exchange: str) -> BaseAdapter:

@@ -8,12 +8,22 @@ NEXUSA core.config.config  — secure, fail-fast settings
 
 from __future__ import annotations
 
+import os
+import yaml
 from functools import lru_cache
 from typing import Optional, Literal
-
 from pydantic import BaseModel, Field, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
 
+# مسیر پیش‌فرض: دو پوشه بالاتر (ریشه پروژه) + config.yaml
+DEFAULT_CFG = Path(__file__).resolve().parents[2] / "config.yaml"
+
+# اگر env ست شده، همونو بگیر؛ وگرنه پیش‌فرض
+CONFIG_PATH = os.getenv("CONFIG_PATH", str(DEFAULT_CFG))
+
+with open(CONFIG_PATH, "r") as f:
+    ...
 
 # ---------- Sub-configs ----------
 
