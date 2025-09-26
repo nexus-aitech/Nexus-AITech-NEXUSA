@@ -3,3 +3,4 @@
 /.vscode            export-ignore
 /tests/fixtures     export-ignore
 /docs               export-ignore
+*.mp4 filter=lfs diff=lfs merge=lfs -text
